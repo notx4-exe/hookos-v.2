@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HOOKOS — Create Your Reel Blueprint</title>
+<meta name="description" content="Enter your idea and choose a content style to generate a complete reel blueprint — hook, script, scene plan and CTA.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="navbar">
+  <div class="container">
+    <a href="index.html" class="logo">HOOKOS</a>
+    <ul class="nav-links">
+      <li><a href="index.html#features">Features</a></li>
+      <li><a href="index.html#how-it-works">How It Works</a></li>
+    </ul>
+    <div class="nav-cta">
+      <a href="index.html" class="btn btn-secondary">Back Home</a>
+    </div>
+  </div>
+</header>
+
+<main class="tool-main">
+  <div class="tool-container">
+
+    <div class="tool-hero">
+      <h1>Create Your Reel Blueprint</h1>
+      <p>Enter your idea and choose a content style.</p>
+    </div>
+
+    <form id="blueprint-form" novalidate>
+      <div class="field-label">Your idea</div>
+      <textarea id="idea-input" placeholder="Describe your reel idea..." aria-label="Describe your reel idea" required></textarea>
+
+      <div class="field-label" style="margin-top:32px;">Choose a style</div>
+      <div class="style-grid" role="radiogroup" aria-label="Content style">
+        <button type="button" class="style-card selected" data-style="psychology" role="radio" aria-checked="true">
+          <span class="check">✓</span>
+          <h3>Psychology</h3>
+          <p>Uses behavioral psychology, curiosity and pattern interrupts.</p>
+        </button>
+        <button type="button" class="style-card" data-style="storytelling" role="radio" aria-checked="false">
+          <span class="check">✓</span>
+          <h3>Storytelling</h3>
+          <p>Uses stories, emotional hooks and narrative structures.</p>
+        </button>
+      </div>
+
+      <div class="generate-row">
+        <button type="submit" class="btn btn-primary btn-lg btn-block" id="generate-btn">
+          <span id="generate-btn-text">Generate Blueprint</span>
+        </button>
+      </div>
+      <div class="form-hint" id="form-hint">&nbsp;</div>
+    </form>
+
+    <section id="results" hidden aria-live="polite">
+      <div class="results-header">
+        <h2>Your Reel Blueprint</h2>
+        <p>Copy each section straight into your workflow.</p>
+      </div>
+
+      <div class="result-card">
+        <div class="result-card-head">
+          <h3>Topic</h3>
+          <button class="copy-btn" data-target="result-topic" type="button">Copy</button>
+        </div>
+        <div class="result-body" id="result-topic"></div>
+      </div>
+
+      <div class="result-card">
+        <div class="result-card-head">
+          <h3>Hook</h3>
+          <button class="copy-btn" data-target="result-hook" type="button">Copy</button>
+        </div>
+        <div class="result-body" id="result-hook"></div>
+      </div>
+
+      <div class="result-card">
+        <div class="result-card-head">
+          <h3>Script</h3>
+          <button class="copy-btn" data-target="result-script" type="button">Copy</button>
+        </div>
+        <div class="result-body" id="result-script"></div>
+      </div>
+
+      <div class="result-card">
+        <div class="result-card-head">
+          <h3>Scene Plan</h3>
+          <button class="copy-btn" data-target="result-scene" type="button">Copy</button>
+        </div>
+        <div class="result-body scene-plan" id="result-scene"></div>
+      </div>
+
+      <div class="result-card">
+        <div class="result-card-head">
+          <h3>CTA</h3>
+          <button class="copy-btn" data-target="result-cta" type="button">Copy</button>
+        </div>
+        <div class="result-body" id="result-cta"></div>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<script src="script.js"></script>
+</body>
+</html>
