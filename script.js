@@ -313,7 +313,11 @@ const HookosAuth = (() => {
 
     const sceneEl = document.getElementById('result-scene');
     sceneEl.innerHTML = '';
-    (bp.scenePlan || []).forEach((line, idx) => {
+    (const scenes = Array.isArray(bp.scenePlan)
+  ? bp.scenePlan
+  : String(bp.scenePlan || "").split("\n");
+
+scenes.forEach((line, idx) => {
       const row = document.createElement('div');
       row.className = 'scene';
       row.innerHTML = `<span class="scene-num">${idx + 1}.</span><span>${escapeHtml(line)}</span>`;
