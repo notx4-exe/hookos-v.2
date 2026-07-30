@@ -256,7 +256,7 @@ const HookosAuth = (() => {
     startLoading();
 
     try {
-      const blueprint = await HookosAPI.generateBlueprint({ idea, framework: selectedFramework });
+      const blueprint = await HookosAPI.generateBlueprint({topic: idea, framework: selectedFramework });
       renderResults(blueprint);
       resultsSection.hidden = false;
       stopLoading();
