@@ -215,12 +215,20 @@ h2 { font-size: clamp(26px, 4vw, 40px); }
 .btn-secondary:hover { border-color: #CCCCCC; background: var(--surface); }
 
 .btn-google {
-  background: var(--bg);
-  color: var(--text-primary);
+  .coming-soon-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #f3f4f6;
+  color: #6b7280;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
   border: 1px solid var(--border);
+  margin-left: 4px;
 }
-.btn-google:hover { border-color: #CCCCCC; background: var(--surface); }
-.btn-google svg { flex-shrink: 0; }
 
 .btn-block { width: 100%; }
 .btn-lg { padding: 18px 36px; font-size: 16px; }
