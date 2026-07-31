@@ -306,33 +306,34 @@ const HookosAuth = (() => {
   }
 
   function renderResults(bp) {
-    setText('result-topic', bp.topic);
-    setText('result-hook', bp.hook);
-    setText('result-script', bp.script);
-    setText('result-cta', bp.cta);
+  setText('result-topic', bp.topic);
+  setText('result-hook', bp.hook);
+  setText('result-script', bp.script);
+  setText('result-cta', bp.cta);
 
-    const sceneEl = document.getElementById('result-scene');
-    sceneEl.innerHTML = '';
-    (const scenes = Array.isArray(bp.scenePlan)
-  ? bp.scenePlan
-  : String(bp.scenePlan || "").split("\n");
+  const sceneEl = document.getElementById('result-scene');
+  sceneEl.innerHTML = '';
 
-scenes.forEach((line, idx) => {
-      const row = document.createElement('div');
-      row.className = 'scene';
-      row.innerHTML = `<span class="scene-num">${idx + 1}.</span><span>${escapeHtml(line)}</span>`;
-      sceneEl.appendChild(row);
-    });
+  const scenes = Array.isArray(bp.scenePlan)
+    ? bp.scenePlan
+    : String(bp.scenePlan || '').split('\n');
 
-    renderMetrics(bp.metrics || {}, bp.framework || selectedFramework);
+  scenes.forEach((line, idx) => {
+    const row = document.createElement('div');
+    row.className = 'scene';
+    row.innerHTML = `<span class="scene-num">${idx + 1}.</span><span>${escapeHtml(line)}</span>`;
+    sceneEl.appendChild(row);
+  });
 
-    document.querySelectorAll('.result-card').forEach((card, i) => {
-      card.classList.remove('fade-slide-in');
-      void card.offsetWidth;
-      card.style.animationDelay = `${i * 0.06}s`;
-      card.classList.add('fade-slide-in');
-    });
-  }
+  renderMetrics(bp.metrics || {}, bp.framework || selectedFramework);
+
+  document.querySelectorAll('.result-card').forEach((card, i) => {
+    card.classList.remove('fade-slide-in');
+    void card.offsetWidth;
+    card.style.animationDelay = `${i * 0.06}s`;
+    card.classList.add('fade-slide-in');
+  });
+}
 
   function renderMetrics(metrics, framework) {
     setText('metric-virality', metrics.viralityScore != null ? `${metrics.viralityScore}` : '—');
