@@ -1,143 +1,11 @@
 // ==========================================================================
-// HOOKOS — script.js
-// UI, animations, and API requests only. No AI/generation logic lives here.
+// HOOKOS — generator (homepage)
+// UI + API calls only. All generation happens on the backend; this file
+// only renders whatever progress/results the backend actually reports.
 // ==========================================================================
 
 /* ---------------------------------------------------------------------- */
-/* 0. API configuration — the ONLY place the backend URL is set           */
-/* ---------------------------------------------------------------------- */
-
-const HOOKOS_CONFIG = {
-  API_BASE_URL:
-    window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-      ? 'http://localhost:5000'
-      : 'https://hookos-backend.onrender.com',
-};
-
-const HookosAPI = (() => {
-  async function request(path, options = {}) {
-    const res = await fetch(`${HOOKOS_CONFIG.API_BASE_URL}${path}`, {
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
-      ...options,
-    });
-
-    let body = null;
-    try { body = await res.json(); } catch (_) { /* no JSON body */ }
-
-    if (!res.ok) {
-      const err = new Error((body && body.message) || `Request failed with status ${res.status}`);
-      err.status = res.status;
-      throw err;
-    }
-    return body;
-  }
-
-  return {
-    generateBlueprint(payload) {
-      return request('/generate', { method: 'POST', body: JSON.stringify(payload) });
-    },
-    getHistory() {
-      return request('/history', { method: 'GET' });
-    },
-    login(credentials) {
-      return request('/login', { method: 'POST', body: JSON.stringify(credentials) });
-    },
-    logout() {
-      return request('/logout', { method: 'POST' });
-    },
-  };
-})();
-
-/* ---------------------------------------------------------------------- */
-/* 1. Mobile navigation                                                    */
-/* ---------------------------------------------------------------------- */
-
-(function initNav() {
-  const toggle = document.getElementById('nav-toggle');
-  const nav = document.getElementById('nav-right');
-  if (!toggle || !nav) return;
-
-  function closeNav() {
-    document.body.classList.remove('nav-open');
-    toggle.setAttribute('aria-expanded', 'false');
-  }
-
-  toggle.addEventListener('click', () => {
-    const isOpen = document.body.classList.toggle('nav-open');
-    toggle.setAttribute('aria-expanded', String(isOpen));
-  });
-
-  nav.querySelectorAll('a').forEach((link) => link.addEventListener('click', closeNav));
-
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeNav();
-  });
-})();
-
-/* ---------------------------------------------------------------------- */
-/* 2. Auth UI (Google Login prep — UI only, no real auth yet)             */
-/* ---------------------------------------------------------------------- */
-
-const HookosAuth = (() => {
-  const STORAGE_KEY = 'hookos-user';
-
-  function readCachedUser() {
-    try {
-      const raw = window.localStorage.getItem(STORAGE_KEY);
-      return raw ? JSON.parse(raw) : null;
-    } catch (_) {
-      return null;
-    }
-  }
-
-  function render() {
-    const user = readCachedUser();
-    document.querySelectorAll('[data-auth-state="signed-out"]').forEach((el) => el.classList.toggle('is-active', !user));
-    document.querySelectorAll('[data-auth-state="signed-in"]').forEach((el) => el.classList.toggle('is-active', Boolean(user)));
-
-    if (user) {
-      document.querySelectorAll('[data-user-initial]').forEach((el) => {
-        el.textContent = (user.name || user.email || '?').trim().charAt(0).toUpperCase();
-      });
-      document.querySelectorAll('[data-user-name]').forEach((el) => {
-        el.textContent = user.name || user.email || 'Account';
-      });
-    }
-  }
-
-  async function logout() {
-    try { await HookosAPI.logout(); } catch (_) { /* best effort */ }
-    window.localStorage.removeItem(STORAGE_KEY);
-    render();
-  }
-
-  document.addEventListener('click', (e) => {
-    if (e.target.closest('[data-action="logout"]')) logout();
-
-    if (e.target.closest('[data-action="google-login"]')) {
-      // Placeholder — once the backend exposes Google OAuth, redirect here:
-      // window.location.href = `${HOOKOS_CONFIG.API_BASE_URL}/auth/google`;
-      console.info('Google Login is not implemented yet — UI only.');
-    }
-
-    const trigger = e.target.closest('#profile-trigger');
-    const menu = document.getElementById('profile-menu');
-    if (trigger && menu) {
-      const isOpen = menu.classList.toggle('is-open');
-      trigger.setAttribute('aria-expanded', String(isOpen));
-    } else if (menu && !e.target.closest('#profile-menu')) {
-      menu.classList.remove('is-open');
-    }
-  });
-
-  document.addEventListener('DOMContentLoaded', render);
-
-  return { currentUser: readCachedUser, render };
-})();
-
-/* ---------------------------------------------------------------------- */
-/* 3. Scroll reveal                                                        */
+/* Scroll reveal                                                           */
 /* ---------------------------------------------------------------------- */
 
 (function initReveal() {
@@ -160,7 +28,7 @@ const HookosAuth = (() => {
 })();
 
 /* ---------------------------------------------------------------------- */
-/* 4. Generator                                                            */
+/* Generator                                                                */
 /* ---------------------------------------------------------------------- */
 
 (function initGenerator() {
@@ -178,17 +46,10 @@ const HookosAuth = (() => {
     { id: 'open-loop', name: 'Open Loop', desc: 'Delays the payoff to hold attention.' },
   ];
 
-  const LOADING_STEPS = [
-    'Analyzing topic...',
-    'Finding audience...',
-    'Choosing framework...',
-    'Writing hook...',
-    'Writing script...',
-    'Creating scene plan...',
-    'Generating CTA...',
-    'Calculating viral metrics...',
-    'Done.',
-  ];
+  // Mirrors backend/utils/constants.js LOADING_STATES — used only to render
+  // the step list; the actual sequencing always comes from real SSE events,
+  // never a local timer.
+  const STEP_ORDER = ['analyzing', 'audience', 'framework', 'title', 'hook', 'script', 'scenes', 'cta', 'metrics', 'finalizing', 'done'];
 
   const frameworkGrid = document.getElementById('framework-grid');
   const ideaInput = document.getElementById('idea-input');
@@ -199,12 +60,12 @@ const HookosAuth = (() => {
   const loadingPanel = document.getElementById('loading-panel');
   const loadingStatus = document.getElementById('loading-status');
   const loadingBar = document.getElementById('loading-bar');
+  const loadingStepsEl = document.getElementById('loading-steps');
   const resultsSection = document.getElementById('results');
 
   let selectedFramework = FRAMEWORKS[0].id;
-  let loadingTimer = null;
+  let activeEventSource = null;
 
-  // Build the framework selector
   frameworkGrid.innerHTML = FRAMEWORKS.map(
     (fw, i) => `
     <button type="button" class="framework-chip${i === 0 ? ' selected' : ''}" data-framework="${fw.id}" role="radio" aria-checked="${i === 0}">
@@ -226,7 +87,6 @@ const HookosAuth = (() => {
     selectedFramework = chip.dataset.framework;
   });
 
-  // Keyboard support for the radiogroup (arrow keys move selection)
   frameworkGrid.addEventListener('keydown', (e) => {
     if (!['ArrowRight', 'ArrowLeft', 'ArrowDown', 'ArrowUp'].includes(e.key)) return;
     const chips = Array.from(frameworkGrid.querySelectorAll('.framework-chip'));
@@ -253,46 +113,98 @@ const HookosAuth = (() => {
     formHint.textContent = '';
     formHint.classList.remove('error');
     resultsSection.hidden = true;
-    startLoading();
+    startLoadingUI();
 
     try {
-      const blueprint = await HookosAPI.generateBlueprint({topic: idea, framework: selectedFramework });
-      renderResults(blueprint.data);
-      resultsSection.hidden = false;
-      stopLoading();
-      resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const startRes = await HookosAPI.startGenerate({ topic: idea, framework: selectedFramework });
+      const jobId = startRes?.data?.jobId;
+      if (!jobId) throw new Error('No job was returned by the server.');
+
+      streamJob(jobId);
     } catch (err) {
-      stopLoading();
+      stopLoadingUI();
       showError(
         err.status === 429
           ? "You're generating a little too fast — wait a moment and try again."
-          : 'Something went wrong generating your blueprint. Please try again.'
+          : 'Something went wrong starting your blueprint. Please try again.'
       );
     }
   });
 
-  function startLoading() {
+  function streamJob(jobId) {
+    if (activeEventSource) activeEventSource.close();
+
+    const es = new EventSource(HookosAPI.streamUrl(jobId), { withCredentials: true });
+    activeEventSource = es;
+
+    es.addEventListener('progress', (event) => {
+      const data = JSON.parse(event.data);
+      renderLoadingStep(data.step, data.label);
+
+      // "Results Ready" — and only this event — carries the final data.
+      // Nothing renders as complete before this fires.
+      if (data.step === 'done' && data.result) {
+        renderResults(data.result);
+        resultsSection.hidden = false;
+        stopLoadingUI();
+        es.close();
+        activeEventSource = null;
+        resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+
+    es.addEventListener('error', (event) => {
+      let message = 'Something went wrong generating your blueprint. Please try again.';
+      try {
+        const data = JSON.parse(event.data);
+        if (data?.message) message = data.message;
+      } catch (_) {
+        /* connection-level error, not a payload — keep default message */
+      }
+      stopLoadingUI();
+      showError(message);
+      es.close();
+      activeEventSource = null;
+    });
+
+    // Native EventSource connection failures (e.g. network drop) also land
+    // here without a parsable payload.
+    es.onerror = () => {
+      if (es.readyState === EventSource.CLOSED) return;
+      stopLoadingUI();
+      showError('Lost connection while generating. Please try again.');
+      es.close();
+      activeEventSource = null;
+    };
+  }
+
+  function startLoadingUI() {
     generateBtn.disabled = true;
     generateBtnText.innerHTML = 'Generating<span class="loading-dots"><span></span><span></span><span></span></span>';
     loadingPanel.classList.add('is-active');
-
-    let step = 0;
-    loadingStatus.textContent = LOADING_STEPS[0];
-    loadingBar.style.width = `${(1 / LOADING_STEPS.length) * 100}%`;
-
-    loadingTimer = window.setInterval(() => {
-      step = Math.min(step + 1, LOADING_STEPS.length - 1);
-      loadingStatus.textContent = LOADING_STEPS[step];
-      loadingBar.style.width = `${((step + 1) / LOADING_STEPS.length) * 100}%`;
-      if (step >= LOADING_STEPS.length - 1) window.clearInterval(loadingTimer);
-    }, 450);
+    loadingBar.style.width = '0%';
+    loadingStatus.textContent = 'Connecting...';
+    loadingStepsEl.innerHTML = STEP_ORDER.map((s) => `<li data-step="${s}"></li>`).join('');
   }
 
-  function stopLoading() {
-    if (loadingTimer) window.clearInterval(loadingTimer);
+  function stopLoadingUI() {
     generateBtn.disabled = false;
     generateBtnText.textContent = 'Generate Blueprint';
     window.setTimeout(() => loadingPanel.classList.remove('is-active'), 300);
+  }
+
+  function renderLoadingStep(step, label) {
+    loadingStatus.textContent = label;
+    const index = STEP_ORDER.indexOf(step);
+    if (index === -1) return;
+
+    loadingBar.style.width = `${((index + 1) / STEP_ORDER.length) * 100}%`;
+
+    loadingStepsEl.querySelectorAll('li').forEach((li) => {
+      const liIndex = STEP_ORDER.indexOf(li.dataset.step);
+      li.classList.toggle('is-done', liIndex < index);
+      li.classList.toggle('is-active', liIndex === index);
+    });
   }
 
   function showError(message) {
@@ -306,57 +218,52 @@ const HookosAuth = (() => {
   }
 
   function renderResults(bp) {
-  setText('result-topic', bp.topic);
-  setText('result-hook', bp.hook);
-  setText('result-script', bp.script);
-  setText('result-cta', bp.cta);
+    setText('result-title', bp.title);
+    setText('result-topic', bp.topicRefinement);
+    setText('result-hook', bp.hook);
+    setText('result-script', bp.script);
+    setText('result-cta', bp.cta);
 
-  const sceneEl = document.getElementById('result-scene');
-  sceneEl.innerHTML = '';
+    const sceneEl = document.getElementById('result-scene');
+    sceneEl.innerHTML = '';
+    String(bp.scenePlan || '')
+      .split('\n')
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .forEach((line, idx) => {
+        const row = document.createElement('div');
+        row.className = 'scene';
+        row.innerHTML = `<span class="scene-num">${idx + 1}.</span><span>${escapeHtml(line.replace(/^\d+[.)]\s*/, ''))}</span>`;
+        sceneEl.appendChild(row);
+      });
 
-  const scenes = Array.isArray(bp.scenePlan)
-    ? bp.scenePlan
-    : String(bp.scenePlan || '').split('\n');
+    renderMetrics(bp.metrics || {});
 
-  scenes.forEach((line, idx) => {
-    const row = document.createElement('div');
-    row.className = 'scene';
-    row.innerHTML = `<span class="scene-num">${idx + 1}.</span><span>${escapeHtml(line)}</span>`;
-    sceneEl.appendChild(row);
-  });
+    document.querySelectorAll('.result-card').forEach((card, i) => {
+      card.classList.remove('fade-slide-in');
+      void card.offsetWidth;
+      card.style.animationDelay = `${i * 0.06}s`;
+      card.classList.add('fade-slide-in');
+    });
+  }
 
-  renderMetrics(bp.metrics || {}, bp.framework || selectedFramework);
-
-  document.querySelectorAll('.result-card').forEach((card, i) => {
-    card.classList.remove('fade-slide-in');
-    void card.offsetWidth;
-    card.style.animationDelay = `${i * 0.06}s`;
-    card.classList.add('fade-slide-in');
-  });
-}
-
-  function renderMetrics(metrics, framework) {
+  function renderMetrics(metrics) {
     setText('metric-virality', metrics.viralityScore != null ? `${metrics.viralityScore}` : '—');
     setText('metric-retention', metrics.retentionScore != null ? `${metrics.retentionScore}` : '—');
-    setText('metric-watchtime', metrics.predictedWatchTime || '—');
+    setText('metric-watchtime', metrics.predictedWatchTime != null ? `${metrics.predictedWatchTime}` : '—');
     setText('metric-emotion', metrics.emotionTrigger || '—');
-    setText('metric-framework', formatFrameworkName(framework));
-    setText('metric-confidence', metrics.confidence != null ? `${metrics.confidence}%` : '—');
+    setText('metric-framework', metrics.framework || '—');
+    setText('metric-confidence', metrics.confidence || '—');
 
     setBar('metric-virality-bar', metrics.viralityScore);
     setBar('metric-retention-bar', metrics.retentionScore);
-    setBar('metric-confidence-bar', metrics.confidence);
+    setBar('metric-watchtime-bar', metrics.predictedWatchTime);
   }
 
   function setBar(id, value) {
     const el = document.getElementById(id);
     if (!el) return;
     el.style.width = value != null ? `${Math.max(0, Math.min(100, value))}%` : '0%';
-  }
-
-  function formatFrameworkName(id) {
-    const fw = FRAMEWORKS.find((f) => f.id === id);
-    return fw ? fw.name : id || '—';
   }
 
   function setText(id, value) {
@@ -370,7 +277,6 @@ const HookosAuth = (() => {
     return div.innerHTML;
   }
 
-  // Copy buttons (event delegation — works for all current and future cards)
   document.addEventListener('click', (e) => {
     const btn = e.target.closest('.copy-btn');
     if (!btn) return;
@@ -391,7 +297,60 @@ const HookosAuth = (() => {
       })
       .catch(() => {
         btn.textContent = 'Copy failed';
-        window.setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
+        window.setTimeout(() => {
+          btn.textContent = 'Copy';
+        }, 2000);
       });
+  });
+})();
+
+/* ---------------------------------------------------------------------- */
+/* Early Access form                                                        */
+/* ---------------------------------------------------------------------- */
+
+(function initEarlyAccess() {
+  const form = document.getElementById('early-access-form');
+  if (!form) return;
+
+  const emailInput = document.getElementById('ea-email');
+  const feedbackInput = document.getElementById('ea-feedback');
+  const hint = document.getElementById('ea-hint');
+  const submitBtn = document.getElementById('ea-submit-btn');
+  const submitText = document.getElementById('ea-submit-text');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = emailInput.value.trim();
+
+    hint.classList.remove('error');
+
+    if (!email) {
+      hint.textContent = 'Enter your email to join the list.';
+      hint.classList.add('error');
+      emailInput.focus();
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitText.textContent = 'Submitting...';
+    hint.textContent = '';
+
+    try {
+      await HookosAPI.joinEarlyAccess({ email, feedback: feedbackInput.value.trim() });
+      submitText.textContent = "✓ You're on the list";
+      form.reset();
+      window.setTimeout(() => {
+        submitText.textContent = 'Request Early Access';
+        submitBtn.disabled = false;
+      }, 2500);
+    } catch (err) {
+      submitBtn.disabled = false;
+      submitText.textContent = 'Request Early Access';
+      hint.textContent =
+        err.status === 501
+          ? 'Early access signups open soon — check back shortly.'
+          : 'Something went wrong. Please try again.';
+      hint.classList.add('error');
+    }
   });
 })();

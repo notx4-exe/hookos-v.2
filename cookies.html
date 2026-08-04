@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cookie Policy — HookOS</title>
+<meta name="description" content="Which cookies HookOS uses and why.">
+<meta name="theme-color" content="#FFFFFF">
+<link rel="icon" href="assets/favicon.ico" sizes="any">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+<div id="navbar-root" class="navbar-placeholder"></div>
+
+<main id="main" class="legal-page">
+  <div class="container">
+    <h1>Cookie Policy</h1>
+    <p class="legal-updated">Last updated: January 2026</p>
+
+    <p>HookOS uses a small number of cookies. All of them are strictly necessary — none are used for advertising or third-party tracking.</p>
+
+    <table class="legal-table">
+      <thead>
+        <tr><th>Cookie</th><th>Purpose</th><th>Duration</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>hookos_session</code></td>
+          <td>Keeps you signed in (httpOnly, not readable by page scripts).</td>
+          <td>7 days</td>
+        </tr>
+        <tr>
+          <td><code>hookos_oauth_session</code></td>
+          <td>Short-lived state used only during the Google sign-in handshake.</td>
+          <td>10 minutes</td>
+        </tr>
+        <tr>
+          <td><code>hookos_csrf</code></td>
+          <td>Security token that confirms requests originate from HookOS itself.</td>
+          <td>2 hours</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Local storage</h2>
+    <p>We also use your browser's local storage (not a cookie) to remember your cookie-consent choice and, in one place, cached preferences. This data never leaves your device.</p>
+
+    <h2>Your choices</h2>
+    <p>Because our cookies are strictly necessary for sign-in and security, declining the cookie banner won't block you from using the generator anonymously — but signing in with Google will still set the session cookie described above, since it's required for the sign-in itself to work.</p>
+
+    <h2>Contact</h2>
+    <p><strong>privacy@hookos.app</strong></p>
+  </div>
+</main>
+
+<div id="footer-root"></div>
+
+<script src="config.js"></script>
+<script src="partials.js"></script>
+<script src="auth.js"></script>
+<script src="cookie-consent.js"></script>
+</body>
+</html>
