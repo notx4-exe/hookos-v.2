@@ -7,7 +7,7 @@ const HOOKOS_CONFIG = {
   API_BASE_URL:
     window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
       ? 'http://localhost:5000'
-      : 'https://YOUR-BACKEND.onrender.com',
+      : 'https://hookos-backend.onrender.com',
 };
 
 const HookosAPI = (() => {
@@ -20,8 +20,7 @@ const HookosAPI = (() => {
       const body = await res.json();
       csrfToken = body?.data?.csrfToken || null;
     } catch (_) {
-      // If this fails, mutating requests will simply be rejected by the
-      // backend (403) rather than the app crashing — acceptable degradation.
+      // CSRF is optional for the current public generate endpoint.
     }
     return csrfToken;
   }
@@ -63,11 +62,8 @@ const HookosAPI = (() => {
     logout() {
       return request('/logout', { method: 'POST' });
     },
-    startGenerate(payload) {
-      return request('/generate/start', { method: 'POST', body: JSON.stringify(payload) });
-    },
-    streamUrl(jobId) {
-      return `${HOOKOS_CONFIG.API_BASE_URL}/generate/stream/${jobId}`;
+    generate(payload) {
+      return request('/generate', { method: 'POST', body: JSON.stringify(payload) });
     },
     getHistory() {
       return request('/history', { method: 'GET' });
