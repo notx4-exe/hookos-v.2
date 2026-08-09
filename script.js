@@ -1,12 +1,7 @@
-// ==========================================================================
+// ===========================================================================
 // HOOKOS — generator (homepage)
-// UI + API calls only. All generation happens on the backend; this file
-// only renders whatever the backend actually returns.
-// ==========================================================================
-
-/* ---------------------------------------------------------------------- */
-/* Scroll reveal                                                           */
-/* ---------------------------------------------------------------------- */
+// UI + API calls only. All generation happens on the backend.
+// ===========================================================================
 
 (function initReveal() {
   const els = document.querySelectorAll('.reveal');
@@ -26,10 +21,6 @@
 
   els.forEach((el) => io.observe(el));
 })();
-
-/* ---------------------------------------------------------------------- */
-/* Generator                                                               */
-/* ---------------------------------------------------------------------- */
 
 (function initGenerator() {
   const form = document.getElementById('blueprint-form');
@@ -58,7 +49,15 @@
   const loadingStepsEl = document.getElementById('loading-steps');
   const resultsSection = document.getElementById('results');
 
+  const LOADING_STAGES = [
+    'Understanding your idea',
+    'Applying the selected framework',
+    'Writing the blueprint',
+    'Evaluating the result',
+  ];
+
   let selectedFramework = FRAMEWORKS[0].id;
+  let loadingTimer = null;
 
   frameworkGrid.innerHTML = FRAMEWORKS.map(
     (fw, i) => `
@@ -110,8 +109,6 @@
     startLoadingUI();
 
     try {
-      // The live backend exposes POST /generate directly.
-      // It expects { idea, framework } and returns the completed blueprint.
       const response = await HookosAPI.generate({ idea, framework: selectedFramework });
       const result = response?.data;
 
@@ -131,26 +128,52 @@
   });
 
   function startLoadingUI() {
+    clearInterval(loadingTimer);
     generateBtn.disabled = true;
     generateBtnText.innerHTML = 'Generating<span class="loading-dots"><span></span><span></span><span></span></span>';
     loadingPanel.classList.add('is-active');
-    loadingBar.style.width = '15%';
-    loadingStatus.textContent = 'Generating your blueprint...';
-    loadingStepsEl.innerHTML = `
-      <li data-step="generating" class="is-active">Generating your blueprint</li>
-    `;
+    loadingPanel.classList.remove('is-complete');
+    loadingBar.style.width = '42%';
+
+    let stageIndex = 0;
+    renderLoadingStage(stageIndex);
+
+    loadingTimer = window.setInterval(() => {
+      stageIndex = (stageIndex + 1) % LOADING_STAGES.length;
+      renderLoadingStage(stageIndex);
+    }, 1100);
+  }
+
+  function renderLoadingStage(index) {
+    loadingStatus.textContent = LOADING_STAGES[index];
+    loadingStepsEl.innerHTML = LOADING_STAGES.map(
+      (stage, i) => `
+        <li class="loading-step ${i === index ? 'is-active' : ''}" data-step="${i}">
+          <span class="loading-step-dot" aria-hidden="true"></span>
+          <span>${stage}</span>
+        </li>`
+    ).join('');
   }
 
   function renderLoadingComplete() {
-    loadingStatus.textContent = 'Results ready.';
+    clearInterval(loadingTimer);
+    loadingTimer = null;
+    loadingPanel.classList.add('is-complete');
+    loadingStatus.textContent = 'Blueprint ready';
     loadingBar.style.width = '100%';
-    loadingStepsEl.innerHTML = '<li data-step="done" class="is-done is-active">Results ready</li>';
+    loadingStepsEl.innerHTML = `
+      <li class="loading-step is-done">
+        <span class="loading-step-dot" aria-hidden="true">✓</span>
+        <span>Your blueprint is ready</span>
+      </li>`;
   }
 
   function stopLoadingUI() {
+    clearInterval(loadingTimer);
+    loadingTimer = null;
     generateBtn.disabled = false;
     generateBtnText.textContent = 'Generate Blueprint';
-    window.setTimeout(() => loadingPanel.classList.remove('is-active'), 300);
+    window.setTimeout(() => loadingPanel.classList.remove('is-active'), 500);
   }
 
   function showError(message) {
@@ -249,10 +272,6 @@
       });
   });
 })();
-
-/* ---------------------------------------------------------------------- */
-/* Early Access form                                                       */
-/* ---------------------------------------------------------------------- */
 
 (function initEarlyAccess() {
   const form = document.getElementById('early-access-form');
