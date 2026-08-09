@@ -1,4 +1,4 @@
-# HookOS — Frontend (v1.0)
+# HookOS — Frontend (v3.0)
 
 Static HTML/CSS/JS, no build step, no framework.
 
