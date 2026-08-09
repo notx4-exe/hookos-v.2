@@ -1,10 +1,11 @@
 // ==========================================================================
 // HOOKOS — auth UI
 //
-// Google OAuth uses a short-lived-in-browser JWT handoff in the URL fragment.
-// This avoids depending on third-party cookies between Vercel and Render.
-// The token is kept in sessionStorage and sent only as an Authorization header.
-// ==========================================================================
+// Google OAuth returns a short-lived JWT in the URL fragment. The fragment
+// is consumed immediately, stored in sessionStorage, and then removed from
+// the address bar. Authentication is confirmed with GET /me before the UI
+// is considered signed in.
+// ============================================================================
 
 const HookosAuth = (() => {
   let currentUser = null;
@@ -32,22 +33,51 @@ const HookosAuth = (() => {
   function consumeOAuthToken() {
     const hash = window.location.hash || '';
     if (!hash.startsWith('#auth_token=')) return false;
-    const token = decodeURIComponent(hash.slice('#auth_token='.length));
-    if (!token) return false;
-    HookosAPI.setAccessToken(token);
-    window.history.replaceState({}, '', window.location.pathname + window.location.search);
-    return true;
+
+    try {
+      const token = decodeURIComponent(hash.slice('#auth_token='.length));
+      if (!token) return false;
+      HookosAPI.setAccessToken(token);
+      return true;
+    } catch (err) {
+      console.warn('[HookosAuth] Invalid OAuth token handoff:', err);
+      return false;
+    }
+  }
+
+  function cleanOAuthUrl() {
+    const cleanUrl = window.location.pathname + window.location.search;
+    window.history.replaceState({}, '', cleanUrl);
   }
 
   async function refresh() {
     try {
       const res = await HookosAPI.me();
       currentUser = res?.data || null;
-      if (currentUser) renderSignedIn(currentUser);
-      else renderSignedOut();
-    } catch (_err) {
+      if (currentUser) {
+        renderSignedIn(currentUser);
+        return true;
+      }
+      renderSignedOut();
+      return false;
+    } catch (err) {
       currentUser = null;
       renderSignedOut();
+      return false;
+    }
+  }
+
+  async function init() {
+    const receivedOAuthToken = consumeOAuthToken();
+    const error = checkOAuthRedirectParams();
+    const authenticated = await refresh();
+
+    // Only remove OAuth parameters after the authentication check has run.
+    // This prevents a failed callback from becoming an invisible login loop.
+    if (receivedOAuthToken || error) cleanOAuthUrl();
+
+    if (receivedOAuthToken && !authenticated) {
+      console.warn('[HookosAuth] Google returned a token, but /me rejected it.');
     }
   }
 
@@ -69,15 +99,7 @@ const HookosAuth = (() => {
     const params = new URLSearchParams(window.location.search);
     const error = params.get('auth_error');
     if (error) console.warn('[HookosAuth] Google sign-in failed:', error);
-    if (error || params.get('login')) {
-      window.history.replaceState({}, '', window.location.pathname + window.location.hash);
-    }
-  }
-
-  function init() {
-    consumeOAuthToken();
-    checkOAuthRedirectParams();
-    refresh();
+    return Boolean(error);
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
