@@ -10,6 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="fixes.css">
 </head>
 <body>
 
@@ -19,7 +20,6 @@
 
 <main id="main">
 
-  <!-- ================= HERO ================= -->
   <section class="hero" id="top">
     <div class="container">
       <div class="hero-copy">
@@ -54,7 +54,6 @@
     </div>
   </section>
 
-  <!-- ================= GENERATOR ================= -->
   <section id="generator" class="section-alt">
     <div class="container generator-shell">
       <div class="section-title reveal">
@@ -67,9 +66,7 @@
         <textarea id="idea-input" placeholder="Describe your reel idea..." aria-labelledby="idea-label" required></textarea>
 
         <div class="field-label" style="margin-top:32px;" id="framework-label">Choose a framework</div>
-        <div class="framework-grid" role="radiogroup" aria-labelledby="framework-label" id="framework-grid">
-          <!-- populated by script.js -->
-        </div>
+        <div class="framework-grid" role="radiogroup" aria-labelledby="framework-label" id="framework-grid"></div>
 
         <button type="submit" class="btn btn-primary btn-lg btn-block" id="generate-btn">
           <span id="generate-btn-text">Generate Blueprint</span>
@@ -79,16 +76,13 @@
         <div class="api-error" id="api-error" role="alert"></div>
       </form>
 
-      <!-- Loading experience — every line here is driven by a real SSE event
-           from the backend; nothing is shown until the backend says so. -->
       <div class="loading-panel" id="loading-panel" aria-live="polite">
         <div class="loading-orb" aria-hidden="true"></div>
-        <div class="loading-status" id="loading-status">Analyzing topic...</div>
+        <div class="loading-status" id="loading-status">Preparing your blueprint...</div>
         <ul class="loading-steps" id="loading-steps" aria-hidden="true"></ul>
-        <div class="loading-track"><div class="loading-bar" id="loading-bar"></div></div>
+        <div class="loading-track" aria-hidden="true"><div class="loading-bar" id="loading-bar"></div></div>
       </div>
 
-      <!-- Results -->
       <section id="results" hidden aria-live="polite">
         <div class="results-header">
           <h2>Your Reel Blueprint</h2>
@@ -129,64 +123,37 @@
         </div>
 
         <div class="result-card">
-          <div class="result-card-head">
-            <h3>Title</h3>
-            <button class="copy-btn" data-target="result-title" type="button">Copy</button>
-          </div>
+          <div class="result-card-head"><h3>Title</h3><button class="copy-btn" data-target="result-title" type="button">Copy</button></div>
           <div class="result-body" id="result-title"></div>
         </div>
-
         <div class="result-card">
-          <div class="result-card-head">
-            <h3>Topic Refinement</h3>
-            <button class="copy-btn" data-target="result-topic" type="button">Copy</button>
-          </div>
+          <div class="result-card-head"><h3>Topic Refinement</h3><button class="copy-btn" data-target="result-topic" type="button">Copy</button></div>
           <div class="result-body" id="result-topic"></div>
         </div>
-
         <div class="result-card">
-          <div class="result-card-head">
-            <h3>Hook</h3>
-            <button class="copy-btn" data-target="result-hook" type="button">Copy</button>
-          </div>
+          <div class="result-card-head"><h3>Hook</h3><button class="copy-btn" data-target="result-hook" type="button">Copy</button></div>
           <div class="result-body" id="result-hook"></div>
         </div>
-
         <div class="result-card">
-          <div class="result-card-head">
-            <h3>Script</h3>
-            <button class="copy-btn" data-target="result-script" type="button">Copy</button>
-          </div>
+          <div class="result-card-head"><h3>Script</h3><button class="copy-btn" data-target="result-script" type="button">Copy</button></div>
           <div class="result-body" id="result-script"></div>
         </div>
-
         <div class="result-card">
-          <div class="result-card-head">
-            <h3>Scene Plan</h3>
-            <button class="copy-btn" data-target="result-scene" type="button">Copy</button>
-          </div>
+          <div class="result-card-head"><h3>Scene Plan</h3><button class="copy-btn" data-target="result-scene" type="button">Copy</button></div>
           <div class="result-body scene-plan" id="result-scene"></div>
         </div>
-
         <div class="result-card">
-          <div class="result-card-head">
-            <h3>CTA</h3>
-            <button class="copy-btn" data-target="result-cta" type="button">Copy</button>
-          </div>
+          <div class="result-card-head"><h3>CTA</h3><button class="copy-btn" data-target="result-cta" type="button">Copy</button></div>
           <div class="result-body" id="result-cta"></div>
         </div>
       </section>
     </div>
   </section>
 
-  <!-- ================= HOW IT WORKS ================= -->
   <section id="how-it-works">
     <div class="container">
-      <div class="section-title reveal">
-        <h2>HookOS Simplifies Everything.</h2>
-        <p>One idea in, one complete blueprint out.</p>
-      </div>
-      <div class="process reveal">
+      <div class="section-title reveal"><h2>HookOS Simplifies Everything.</h2><p>One idea in, one complete blueprint out.</p></div>
+      <div class="process">
         <div class="process-step"><div class="num">1</div><span class="label">Idea</span></div>
         <span class="process-arrow" aria-hidden="true">→</span>
         <div class="process-step"><div class="num">2</div><span class="label">Choose Framework</span></div>
@@ -198,104 +165,46 @@
     </div>
   </section>
 
-  <!-- ================= EXAMPLE OUTPUT ================= -->
   <section id="example" class="section-alt">
     <div class="container">
-      <div class="section-title reveal">
-        <h2>See It In Action.</h2>
-        <p>The same idea, shaped by two different frameworks.</p>
-      </div>
-
-      <div class="example-input reveal">
-        <div class="mockup-label">Idea</div>
-        <div class="mockup-input">Why students can't focus</div>
-      </div>
-
+      <div class="section-title reveal"><h2>See It In Action.</h2><p>The same idea, shaped by two different frameworks.</p></div>
+      <div class="example-input reveal"><div class="mockup-label">Idea</div><div class="mockup-input">Why students can't focus</div></div>
       <div class="grid-2">
-        <div class="output-card reveal">
-          <h3>🧠 Curiosity Gap</h3>
-          <div class="output-line"><strong>Title</strong><span>The Focus Thief Nobody Talks About</span></div>
-          <div class="output-line"><strong>Hook</strong><span>Your brain isn't broken — it's being hijacked every 6 seconds.</span></div>
-          <div class="output-line"><strong>Script</strong><span>Open with the hijack claim, reveal the dopamine-loop mechanism, contrast focused vs. distracted brain states, deliver one counter-intuitive fix.</span></div>
-          <div class="output-line"><strong>Scene Plan</strong><span>Close-up on phone notifications → split screen brain scan visual → text overlay of the fix → direct-to-camera close.</span></div>
-          <div class="output-line"><strong>CTA</strong><span>Save this before your next study session.</span></div>
-        </div>
-        <div class="output-card reveal">
-          <h3>📖 Story</h3>
-          <div class="output-line"><strong>Title</strong><span>I Failed Twice Before I Found Out Why</span></div>
-          <div class="output-line"><strong>Hook</strong><span>I failed my finals twice before I found out why.</span></div>
-          <div class="output-line"><strong>Script</strong><span>Set the scene of the failed exam, walk through the moment of realization, introduce the turning point, land on the lesson learned.</span></div>
-          <div class="output-line"><strong>Scene Plan</strong><span>Sitting at a desk, defeated → flashback b-roll of late-night cramming → lightbulb moment shot → confident walk to class.</span></div>
-          <div class="output-line"><strong>CTA</strong><span>Follow for the full story series.</span></div>
-        </div>
+        <div class="output-card reveal"><h3>🧠 Curiosity Gap</h3><div class="output-line"><strong>Title</strong><span>The Focus Thief Nobody Talks About</span></div><div class="output-line"><strong>Hook</strong><span>Your brain isn't broken — it's being hijacked every 6 seconds.</span></div><div class="output-line"><strong>Script</strong><span>Open with the hijack claim, reveal the dopamine-loop mechanism, contrast focused vs. distracted brain states, deliver one counter-intuitive fix.</span></div><div class="output-line"><strong>Scene Plan</strong><span>Close-up on phone notifications → split screen brain scan visual → text overlay of the fix → direct-to-camera close.</span></div><div class="output-line"><strong>CTA</strong><span>Save this before your next study session.</span></div></div>
+        <div class="output-card reveal"><h3>📖 Story</h3><div class="output-line"><strong>Title</strong><span>I Failed Twice Before I Found Out Why</span></div><div class="output-line"><strong>Hook</strong><span>I failed my finals twice before I found out why.</span></div><div class="output-line"><strong>Script</strong><span>Set the scene of the failed exam, walk through the moment of realization, introduce the turning point, land on the lesson learned.</span></div><div class="output-line"><strong>Scene Plan</strong><span>Sitting at a desk, defeated → flashback b-roll of late-night cramming → lightbulb moment shot → confident walk to class.</span></div><div class="output-line"><strong>CTA</strong><span>Follow for the full story series.</span></div></div>
       </div>
     </div>
   </section>
 
-  <!-- ================= WHY HOOKOS ================= -->
   <section id="features">
     <div class="container">
-      <div class="section-title reveal">
-        <h2>Why HookOS.</h2>
-        <p>Built for the parts of content creation that actually eat your time.</p>
-      </div>
+      <div class="section-title reveal"><h2>Why HookOS.</h2><p>Built for the parts of content creation that actually eat your time.</p></div>
       <div class="grid-4">
-        <div class="card reveal">
-          <div class="card-icon" aria-hidden="true">01</div>
-          <h3>Real Frameworks</h3>
-          <p>Eight proven hook frameworks, not one generic template.</p>
-        </div>
-        <div class="card reveal">
-          <div class="card-icon" aria-hidden="true">02</div>
-          <h3>Complete Blueprints</h3>
-          <p>Title, hook, script, scene plan and CTA — every time, together.</p>
-        </div>
-        <div class="card reveal">
-          <div class="card-icon" aria-hidden="true">03</div>
-          <h3>Built-In Metrics</h3>
-          <p>Virality, retention and confidence scored before you film.</p>
-        </div>
-        <div class="card reveal">
-          <div class="card-icon" aria-hidden="true">04</div>
-          <h3>Live Progress</h3>
-          <p>Watch each part of your blueprint get written in real time.</p>
-        </div>
+        <div class="card reveal"><div class="card-icon" aria-hidden="true">01</div><h3>Real Frameworks</h3><p>Eight proven hook frameworks, not one generic template.</p></div>
+        <div class="card reveal"><div class="card-icon" aria-hidden="true">02</div><h3>Complete Blueprints</h3><p>Title, hook, script, scene plan and CTA — every time, together.</p></div>
+        <div class="card reveal"><div class="card-icon" aria-hidden="true">03</div><h3>Built-In Metrics</h3><p>Virality, retention and confidence scored before you film.</p></div>
+        <div class="card reveal"><div class="card-icon" aria-hidden="true">04</div><h3>Live Progress</h3><p>See the generator work through each stage while your blueprint is being created.</p></div>
       </div>
     </div>
   </section>
 
-  <!-- ================= EARLY ACCESS ================= -->
   <section id="early-access" class="section-alt">
     <div class="container">
-      <div class="section-title reveal">
-        <h2>Get Early Access.</h2>
-        <p>HookOS is in active development. Join the list and tell us what you'd want built next.</p>
-      </div>
-
+      <div class="section-title reveal"><h2>Get Early Access.</h2><p>HookOS is in active development. Join the list and tell us what you'd want built next.</p></div>
       <div class="early-access-shell reveal">
         <form id="early-access-form" novalidate>
           <label class="sr-only" for="ea-email">Email address</label>
           <input type="email" id="ea-email" placeholder="you@email.com" required autocomplete="email">
-
           <label class="sr-only" for="ea-feedback">Feedback (optional)</label>
           <textarea id="ea-feedback" placeholder="Anything you'd want HookOS to do? (optional)"></textarea>
-
-          <button type="submit" class="btn btn-primary btn-lg btn-block" id="ea-submit-btn">
-            <span id="ea-submit-text">Request Early Access</span>
-          </button>
+          <button type="submit" class="btn btn-primary btn-lg btn-block" id="ea-submit-btn"><span id="ea-submit-text">Request Early Access</span></button>
           <div class="form-hint" id="ea-hint">&nbsp;</div>
         </form>
       </div>
     </div>
   </section>
 
-  <!-- ================= FINAL CTA ================= -->
-  <section class="final-cta">
-    <div class="container reveal">
-      <h2>Ready To Create Better Reels?</h2>
-      <a href="#generator" class="btn btn-primary btn-lg">Generate My Reel</a>
-    </div>
-  </section>
+  <section class="final-cta"><div class="container reveal"><h2>Ready To Create Better Reels?</h2><a href="#generator" class="btn btn-primary btn-lg">Generate My Reel</a></div></section>
 </main>
 
 <div id="footer-root"></div>
