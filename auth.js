@@ -1,11 +1,9 @@
 // ==========================================================================
 // HOOKOS — auth UI
 //
-// The session lives in an httpOnly cookie the browser controls — this file
-// never reads or stores the token itself. On every page load it asks the
-// backend "am I signed in?" via GET /me and renders the navbar accordingly.
-// (The previous version trusted a cached localStorage user object, which
-// could go stale or be spoofed client-side; this is the real check.)
+// Google OAuth uses a short-lived-in-browser JWT handoff in the URL fragment.
+// This avoids depending on third-party cookies between Vercel and Render.
+// The token is kept in sessionStorage and sent only as an Authorization header.
 // ==========================================================================
 
 const HookosAuth = (() => {
@@ -19,14 +17,9 @@ const HookosAuth = (() => {
   function renderSignedIn(user) {
     document.querySelectorAll('[data-auth-state="signed-out"]').forEach((el) => el.classList.remove('is-active'));
     document.querySelectorAll('[data-auth-state="signed-in"]').forEach((el) => el.classList.add('is-active'));
-
     const initial = (user.name || user.email || '?').trim().charAt(0).toUpperCase();
-    document.querySelectorAll('[data-user-initial]').forEach((el) => {
-      el.textContent = initial;
-    });
-    document.querySelectorAll('[data-user-name]').forEach((el) => {
-      el.textContent = user.name || user.email || 'Account';
-    });
+    document.querySelectorAll('[data-user-initial]').forEach((el) => { el.textContent = initial; });
+    document.querySelectorAll('[data-user-name]').forEach((el) => { el.textContent = user.name || user.email || 'Account'; });
     document.querySelectorAll('[data-user-avatar]').forEach((el) => {
       if (user.avatarUrl) {
         el.src = user.avatarUrl;
@@ -36,15 +29,22 @@ const HookosAuth = (() => {
     });
   }
 
+  function consumeOAuthToken() {
+    const hash = window.location.hash || '';
+    if (!hash.startsWith('#auth_token=')) return false;
+    const token = decodeURIComponent(hash.slice('#auth_token='.length));
+    if (!token) return false;
+    HookosAPI.setAccessToken(token);
+    window.history.replaceState({}, '', window.location.pathname + window.location.search);
+    return true;
+  }
+
   async function refresh() {
     try {
       const res = await HookosAPI.me();
       currentUser = res?.data || null;
-      if (currentUser) {
-        renderSignedIn(currentUser);
-      } else {
-        renderSignedOut();
-      }
+      if (currentUser) renderSignedIn(currentUser);
+      else renderSignedOut();
     } catch (_err) {
       currentUser = null;
       renderSignedOut();
@@ -52,50 +52,36 @@ const HookosAuth = (() => {
   }
 
   async function logout() {
-    try {
-      await HookosAPI.logout();
-    } finally {
-      currentUser = null;
-      renderSignedOut();
-      window.location.href = 'index.html';
-    }
+    try { await HookosAPI.logout(); } catch (_) {}
+    currentUser = null;
+    renderSignedOut();
+    window.location.href = 'index.html';
   }
 
   document.addEventListener('click', (e) => {
-    if (e.target.closest('[data-action="logout"]')) {
-      logout();
-    }
+    if (e.target.closest('[data-action="logout"]')) logout();
     if (e.target.closest('[data-action="google-login"]')) {
       window.location.href = HookosAPI.googleLoginUrl();
     }
   });
 
-  // Surface OAuth callback errors (e.g. ?auth_error=google_auth_failed) as a
-  // one-line, dismissable notice instead of failing silently.
   function checkOAuthRedirectParams() {
     const params = new URLSearchParams(window.location.search);
     const error = params.get('auth_error');
-    const success = params.get('login');
-
-    if (error || success) {
-      const cleanUrl = window.location.pathname + window.location.hash;
-      window.history.replaceState({}, '', cleanUrl);
-    }
-    if (error) {
-      console.warn('[HookosAuth] Google sign-in failed:', error);
+    if (error) console.warn('[HookosAuth] Google sign-in failed:', error);
+    if (error || params.get('login')) {
+      window.history.replaceState({}, '', window.location.pathname + window.location.hash);
     }
   }
 
   function init() {
+    consumeOAuthToken();
     checkOAuthRedirectParams();
     refresh();
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
 
   return { refresh, currentUser: () => currentUser };
 })();
