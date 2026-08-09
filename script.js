@@ -1,7 +1,7 @@
 // ==========================================================================
 // HOOKOS — generator (homepage)
 // UI + API calls only. All generation happens on the backend; this file
-// only renders whatever progress/results the backend actually reports.
+// only renders whatever the backend actually returns.
 // ==========================================================================
 
 /* ---------------------------------------------------------------------- */
@@ -28,7 +28,7 @@
 })();
 
 /* ---------------------------------------------------------------------- */
-/* Generator                                                                */
+/* Generator                                                               */
 /* ---------------------------------------------------------------------- */
 
 (function initGenerator() {
@@ -46,11 +46,6 @@
     { id: 'open-loop', name: 'Open Loop', desc: 'Delays the payoff to hold attention.' },
   ];
 
-  // Mirrors backend/utils/constants.js LOADING_STATES — used only to render
-  // the step list; the actual sequencing always comes from real SSE events,
-  // never a local timer.
-  const STEP_ORDER = ['analyzing', 'audience', 'framework', 'title', 'hook', 'script', 'scenes', 'cta', 'metrics', 'finalizing', 'done'];
-
   const frameworkGrid = document.getElementById('framework-grid');
   const ideaInput = document.getElementById('idea-input');
   const formHint = document.getElementById('form-hint');
@@ -64,7 +59,6 @@
   const resultsSection = document.getElementById('results');
 
   let selectedFramework = FRAMEWORKS[0].id;
-  let activeEventSource = null;
 
   frameworkGrid.innerHTML = FRAMEWORKS.map(
     (fw, i) => `
@@ -116,95 +110,47 @@
     startLoadingUI();
 
     try {
-      const startRes = await HookosAPI.startGenerate({ topic: idea, framework: selectedFramework });
-      const jobId = startRes?.data?.jobId;
-      if (!jobId) throw new Error('No job was returned by the server.');
+      // The live backend exposes POST /generate directly.
+      // It expects { idea, framework } and returns the completed blueprint.
+      const response = await HookosAPI.generate({ idea, framework: selectedFramework });
+      const result = response?.data;
 
-      streamJob(jobId);
+      if (!response?.success || !result) {
+        throw new Error(response?.message || 'The server returned an invalid response.');
+      }
+
+      renderLoadingComplete();
+      renderResults(result);
+      resultsSection.hidden = false;
+      stopLoadingUI();
+      resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } catch (err) {
       stopLoadingUI();
-      showError(
-        err.status === 429
-          ? "You're generating a little too fast — wait a moment and try again."
-          : 'Something went wrong starting your blueprint. Please try again.'
-      );
+      showError(err.message || 'Something went wrong generating your blueprint. Please try again.');
     }
   });
-
-  function streamJob(jobId) {
-    if (activeEventSource) activeEventSource.close();
-
-    const es = new EventSource(HookosAPI.streamUrl(jobId), { withCredentials: true });
-    activeEventSource = es;
-
-    es.addEventListener('progress', (event) => {
-      const data = JSON.parse(event.data);
-      renderLoadingStep(data.step, data.label);
-
-      // "Results Ready" — and only this event — carries the final data.
-      // Nothing renders as complete before this fires.
-      if (data.step === 'done' && data.result) {
-        renderResults(data.result);
-        resultsSection.hidden = false;
-        stopLoadingUI();
-        es.close();
-        activeEventSource = null;
-        resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    });
-
-    es.addEventListener('error', (event) => {
-      let message = 'Something went wrong generating your blueprint. Please try again.';
-      try {
-        const data = JSON.parse(event.data);
-        if (data?.message) message = data.message;
-      } catch (_) {
-        /* connection-level error, not a payload — keep default message */
-      }
-      stopLoadingUI();
-      showError(message);
-      es.close();
-      activeEventSource = null;
-    });
-
-    // Native EventSource connection failures (e.g. network drop) also land
-    // here without a parsable payload.
-    es.onerror = () => {
-      if (es.readyState === EventSource.CLOSED) return;
-      stopLoadingUI();
-      showError('Lost connection while generating. Please try again.');
-      es.close();
-      activeEventSource = null;
-    };
-  }
 
   function startLoadingUI() {
     generateBtn.disabled = true;
     generateBtnText.innerHTML = 'Generating<span class="loading-dots"><span></span><span></span><span></span></span>';
     loadingPanel.classList.add('is-active');
-    loadingBar.style.width = '0%';
-    loadingStatus.textContent = 'Connecting...';
-    loadingStepsEl.innerHTML = STEP_ORDER.map((s) => `<li data-step="${s}"></li>`).join('');
+    loadingBar.style.width = '15%';
+    loadingStatus.textContent = 'Generating your blueprint...';
+    loadingStepsEl.innerHTML = `
+      <li data-step="generating" class="is-active">Generating your blueprint</li>
+    `;
+  }
+
+  function renderLoadingComplete() {
+    loadingStatus.textContent = 'Results ready.';
+    loadingBar.style.width = '100%';
+    loadingStepsEl.innerHTML = '<li data-step="done" class="is-done is-active">Results ready</li>';
   }
 
   function stopLoadingUI() {
     generateBtn.disabled = false;
     generateBtnText.textContent = 'Generate Blueprint';
     window.setTimeout(() => loadingPanel.classList.remove('is-active'), 300);
-  }
-
-  function renderLoadingStep(step, label) {
-    loadingStatus.textContent = label;
-    const index = STEP_ORDER.indexOf(step);
-    if (index === -1) return;
-
-    loadingBar.style.width = `${((index + 1) / STEP_ORDER.length) * 100}%`;
-
-    loadingStepsEl.querySelectorAll('li').forEach((li) => {
-      const liIndex = STEP_ORDER.indexOf(li.dataset.step);
-      li.classList.toggle('is-done', liIndex < index);
-      li.classList.toggle('is-active', liIndex === index);
-    });
   }
 
   function showError(message) {
@@ -305,7 +251,7 @@
 })();
 
 /* ---------------------------------------------------------------------- */
-/* Early Access form                                                        */
+/* Early Access form                                                       */
 /* ---------------------------------------------------------------------- */
 
 (function initEarlyAccess() {
