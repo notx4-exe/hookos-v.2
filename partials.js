@@ -1,11 +1,5 @@
 // ==========================================================================
 // HOOKOS — shared navbar + footer
-//
-// Rendered synchronously into #navbar-root / #footer-root (present on every
-// page) so there's exactly one copy of this markup to maintain, without a
-// build step or a network fetch. Placed inline (not deferred) right after
-// each root element so there's no flash of missing chrome and no layout
-// shift.
 // ==========================================================================
 
 function hookosCurrentPageKey() {
@@ -30,7 +24,7 @@ function renderNavbar() {
     <header class="navbar">
       <div class="container">
         <a href="index.html" class="logo-link" aria-label="HOOKOS home">
-          <img src="assets/images/logo.png" alt="HOOKOS" class="logo-img" width="160" height="62">
+          <span class="logo-wordmark">HOOKOS</span>
         </a>
 
         <button type="button" class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="nav-right" aria-label="Toggle menu">
@@ -87,7 +81,7 @@ function renderFooter() {
       <div class="container">
         <div class="footer-top">
           <div class="footer-brand">
-            <img src="assets/images/logo.png" alt="HOOKOS" class="logo-img footer-logo" width="120" height="47">
+            <span class="logo-wordmark footer-wordmark">HOOKOS</span>
             <p class="footer-tag">From Idea To Reel.</p>
           </div>
 
