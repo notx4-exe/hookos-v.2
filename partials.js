@@ -31,7 +31,14 @@ function renderNavbar() {
           <span class="nav-toggle-bars"><span></span><span></span><span></span></span>
         </button>
 
+        <div class="nav-backdrop" id="nav-backdrop" aria-hidden="true"></div>
+
         <nav class="nav-right" id="nav-right" aria-label="Primary">
+          <div class="mobile-nav-header">
+            <span class="mobile-nav-title">HOOKOS</span>
+            <button type="button" class="mobile-nav-close" id="mobile-nav-close" aria-label="Close menu">×</button>
+          </div>
+
           <ul class="nav-links">
             ${navItem('home', 'index.html', 'Home')}
             ${navItem('generator', 'index.html#generator', 'Generator')}
@@ -70,6 +77,183 @@ function renderNavbar() {
     </header>`;
 
   initNavInteractions();
+  installMobileNavStyles();
+}
+
+function installMobileNavStyles() {
+  if (document.getElementById('hookos-mobile-nav-styles')) return;
+
+  const style = document.createElement('style');
+  style.id = 'hookos-mobile-nav-styles';
+  style.textContent = `
+    @media (max-width: 860px) {
+      body.nav-open { overflow: hidden; }
+
+      .nav-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 109;
+        background: rgba(0,0,0,.28);
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transition: opacity .24s var(--ease), visibility .24s;
+      }
+
+      .nav-open .nav-backdrop {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+      }
+
+      .nav-right {
+        z-index: 110;
+        position: fixed;
+        inset: 0 auto 0 0;
+        width: min(360px, 88vw);
+        height: 100dvh;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        padding: 0;
+        background: var(--bg);
+        border-right: 1px solid var(--border);
+        border-radius: 0 22px 22px 0;
+        box-shadow: 18px 0 50px rgba(0,0,0,.10);
+        transform: translateX(-104%);
+        opacity: 1;
+        visibility: hidden;
+        pointer-events: none;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
+        transition: transform .28s var(--ease), visibility .28s;
+      }
+
+      .nav-open .nav-right {
+        transform: translateX(0);
+        visibility: visible;
+        pointer-events: auto;
+      }
+
+      .mobile-nav-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 72px;
+        padding: 0 18px 0 22px;
+        border-bottom: 1px solid var(--border);
+        flex-shrink: 0;
+      }
+
+      .mobile-nav-title {
+        font-size: 20px;
+        font-weight: 800;
+        letter-spacing: -.04em;
+      }
+
+      .mobile-nav-close {
+        width: 42px;
+        height: 42px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--border);
+        border-radius: 50%;
+        font-size: 28px;
+        font-weight: 300;
+        line-height: 1;
+        color: var(--text-primary);
+      }
+
+      .nav-right .nav-links {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 18px 12px 8px;
+      }
+
+      .nav-right .nav-links li { width: 100%; }
+
+      .nav-right .nav-links a {
+        display: flex;
+        align-items: center;
+        min-height: 52px;
+        padding: 0 14px;
+        border-radius: 12px;
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--text-primary);
+        transition: background-color .18s var(--ease), transform .18s var(--ease);
+      }
+
+      .nav-right .nav-links a:hover,
+      .nav-right .nav-links a:focus-visible {
+        background: var(--surface);
+        transform: none;
+      }
+
+      .nav-right .nav-links a.is-active {
+        background: var(--surface);
+      }
+
+      .nav-right .auth-area {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        padding: 8px 12px 0;
+      }
+
+      .nav-right .auth-area > div,
+      .nav-right .auth-area .btn {
+        width: 100%;
+      }
+
+      .nav-right .profile-trigger {
+        width: 100%;
+        justify-content: flex-start;
+        min-height: 52px;
+      }
+
+      .nav-right > .btn-primary {
+        width: calc(100% - 24px);
+        margin: 12px;
+      }
+
+      .nav-right .profile-dropdown {
+        position: static;
+        box-shadow: none;
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+        display: none;
+        margin-top: 4px;
+      }
+
+      .nav-right .profile-menu.is-open .profile-dropdown {
+        display: block;
+      }
+
+      .nav-toggle {
+        position: relative;
+        z-index: 111;
+      }
+
+      .nav-open .nav-toggle {
+        opacity: 0;
+        pointer-events: none;
+      }
+    }
+
+    @media (min-width: 861px) {
+      .mobile-nav-header,
+      .nav-backdrop {
+        display: none;
+      }
+    }
+  `;
+  document.head.appendChild(style);
 }
 
 function renderFooter() {
@@ -122,16 +306,25 @@ function renderFooter() {
 function initNavInteractions() {
   const toggle = document.getElementById('nav-toggle');
   const nav = document.getElementById('nav-right');
+  const backdrop = document.getElementById('nav-backdrop');
+  const closeButton = document.getElementById('mobile-nav-close');
+
   if (toggle && nav) {
     const closeNav = () => {
       document.body.classList.remove('nav-open');
       toggle.setAttribute('aria-expanded', 'false');
     };
+
     toggle.addEventListener('click', () => {
       const isOpen = document.body.classList.toggle('nav-open');
       toggle.setAttribute('aria-expanded', String(isOpen));
     });
+
+    if (closeButton) closeButton.addEventListener('click', closeNav);
+    if (backdrop) backdrop.addEventListener('click', closeNav);
+
     nav.querySelectorAll('a').forEach((link) => link.addEventListener('click', closeNav));
+
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') closeNav();
     });
