@@ -9,42 +9,93 @@
 <link rel="stylesheet" href="styles.css">
 <link rel="stylesheet" href="fixes.css">
 <style>
-.dashboard-shell{padding:72px 0 96px}.dashboard-head{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:32px}.dashboard-head h1{margin:0 0 8px}.dashboard-head p{margin:0;color:var(--text-secondary)}.dashboard-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(280px,.8fr);gap:20px}.dashboard-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:24px}.dashboard-card h2{margin:0 0 18px}.usage-number{font-size:44px;font-weight:800;letter-spacing:-.05em}.usage-copy{color:var(--text-secondary);margin-top:4px}.usage-bar{height:8px;background:var(--border);border-radius:999px;overflow:hidden;margin-top:18px}.usage-bar span{display:block;height:100%;width:0;background:var(--text-primary);border-radius:inherit}.history-list{display:grid;gap:12px}.history-item{border:1px solid var(--border);border-radius:16px;padding:16px}.history-item-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}.history-item h3{margin:0 0 6px;font-size:16px}.history-meta{font-size:13px;color:var(--text-secondary)}.history-preview{margin-top:10px;color:var(--text-secondary);line-height:1.5}.dashboard-empty{padding:32px 0;color:var(--text-secondary);text-align:center}.danger-link{color:#b42318}.account-email{font-weight:600;word-break:break-word}.account-meta{color:var(--text-secondary);font-size:14px;margin-top:6px}.dashboard-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}.mini-btn{border:1px solid var(--border);background:transparent;border-radius:10px;padding:9px 12px;cursor:pointer}.mini-btn:hover{background:var(--bg)}
-@media(max-width:760px){.dashboard-shell{padding:44px 0 72px}.dashboard-head{display:block}.dashboard-grid{grid-template-columns:1fr}.dashboard-card{padding:20px}}
+  .dashboard-shell{padding:54px 0 90px;background:var(--bg)}
+  .dashboard-wrap{max-width:1060px}
+  .dashboard-hero{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:28px}
+  .dashboard-kicker{font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#888;margin-bottom:10px}
+  .dashboard-hero h1{margin:0;font-size:clamp(40px,7vw,68px);line-height:.98;letter-spacing:-.06em}
+  .dashboard-hero p{margin:12px 0 0;max-width:560px;color:var(--text-secondary);font-size:18px;line-height:1.5}
+  .dashboard-create{flex-shrink:0}
+  .dashboard-stats{display:grid;grid-template-columns:1.2fr .8fr;gap:18px;margin-bottom:18px}
+  .dashboard-card{background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:28px;box-shadow:0 10px 34px rgba(0,0,0,.035)}
+  .usage-card{min-height:230px;display:flex;flex-direction:column;justify-content:space-between}
+  .card-eyebrow{font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#888}
+  .usage-number{font-size:clamp(52px,9vw,76px);font-weight:850;letter-spacing:-.07em;line-height:1;margin-top:18px}
+  .usage-number span{font-size:.45em;color:#999;font-weight:700;letter-spacing:-.03em}
+  .usage-copy{margin-top:10px;color:var(--text-secondary);font-size:16px}
+  .usage-bar{height:9px;background:#eee;border-radius:999px;overflow:hidden;margin-top:22px}
+  .usage-bar span{display:block;height:100%;width:100%;background:#111;border-radius:inherit;transition:width .3s ease}
+  .account-card h2{margin:8px 0 10px;font-size:27px;letter-spacing:-.035em}
+  .account-email{font-weight:700;word-break:break-word;font-size:16px}
+  .account-name,.account-plan{color:var(--text-secondary);margin-top:6px}
+  .dashboard-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}
+  .danger-button{border:1px solid #e1e1e1;background:transparent;color:#a11;border-radius:12px;padding:11px 15px;font:inherit;font-weight:700;cursor:pointer}
+  .danger-button:hover{background:#faf5f5}
+  .history-card{padding:28px}
+  .history-head{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:18px}
+  .history-head h2{margin:0;font-size:28px;letter-spacing:-.04em}
+  .history-list{display:grid;gap:10px}
+  .history-item{border:1px solid var(--border);border-radius:16px;padding:17px;background:#fff}
+  .history-item-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+  .history-item h3{margin:0 0 6px;font-size:16px;letter-spacing:-.015em}
+  .history-meta{font-size:12px;color:#888}
+  .history-preview{margin-top:11px;color:var(--text-secondary);line-height:1.5;font-size:14px}
+  .mini-btn{border:1px solid var(--border);background:transparent;border-radius:10px;padding:8px 11px;cursor:pointer;font:inherit;font-size:12px;font-weight:700}
+  .mini-btn:hover{background:var(--bg)}
+  .dashboard-empty{padding:38px 16px;text-align:center;color:var(--text-secondary);border:1px dashed var(--border);border-radius:16px}
+  .dashboard-loading{color:var(--text-secondary)}
+  @media(max-width:760px){
+    .dashboard-shell{padding:36px 0 64px}
+    .dashboard-hero{display:block}
+    .dashboard-hero p{font-size:16px}
+    .dashboard-create{width:100%;margin-top:20px}
+    .dashboard-create .btn{width:100%}
+    .dashboard-stats{grid-template-columns:1fr}
+    .dashboard-card{padding:22px;border-radius:20px}
+    .history-card{padding:22px}
+    .history-head{align-items:flex-start}
+  }
 </style>
 </head>
 <body>
 <a href="#main" class="skip-link">Skip to content</a>
 <div id="navbar-root" class="navbar-placeholder"></div>
 <main id="main" class="dashboard-shell">
-  <div class="container">
-    <div class="dashboard-head">
-      <div><h1>Your Dashboard</h1><p>Manage your account and see what you have created.</p></div>
-      <a class="btn btn-primary" href="index.html#generator">Create Blueprint</a>
-    </div>
+  <div class="container dashboard-wrap">
+    <header class="dashboard-hero">
+      <div>
+        <div class="dashboard-kicker">Your workspace</div>
+        <h1>Dashboard.</h1>
+        <p>Manage your account, track today's generation limit, and revisit your blueprints.</p>
+      </div>
+      <div class="dashboard-create"><a class="btn btn-primary btn-lg" href="index.html#generator">Create Blueprint</a></div>
+    </header>
 
-    <div class="dashboard-grid">
-      <section class="dashboard-card" aria-labelledby="usage-title">
-        <h2 id="usage-title">Today</h2>
-        <div class="usage-number" id="usage-number">— / 3</div>
-        <div class="usage-copy" id="usage-copy">Loading your daily generation limit…</div>
+    <div class="dashboard-stats">
+      <section class="dashboard-card usage-card" aria-labelledby="usage-title">
+        <div>
+          <div class="card-eyebrow" id="usage-title">Available today</div>
+          <div class="usage-number"><span id="usage-number">—</span> <span>/ 3</span></div>
+          <div class="usage-copy" id="usage-copy">Loading your daily generation limit…</div>
+        </div>
         <div class="usage-bar" aria-hidden="true"><span id="usage-bar"></span></div>
       </section>
 
-      <section class="dashboard-card" aria-labelledby="account-title">
-        <h2 id="account-title">Account</h2>
+      <section class="dashboard-card account-card" aria-labelledby="account-title">
+        <div class="card-eyebrow">Account</div>
+        <h2 id="account-title">Your account</h2>
         <div class="account-email" id="account-email">Loading…</div>
-        <div class="account-meta" id="account-name"></div>
-        <div class="account-meta" id="account-plan"></div>
+        <div class="account-name" id="account-name"></div>
+        <div class="account-plan" id="account-plan"></div>
         <div class="dashboard-actions">
           <a class="btn btn-secondary" href="#history">History</a>
-          <button class="mini-btn danger-link" type="button" data-action="delete-account">Delete Account</button>
+          <button class="danger-button" type="button" data-action="delete-account">Delete account</button>
         </div>
       </section>
     </div>
 
-    <section class="dashboard-card" id="history" style="margin-top:20px" aria-labelledby="history-title">
-      <h2 id="history-title">History</h2>
+    <section class="dashboard-card history-card" id="history" aria-labelledby="history-title">
+      <div class="history-head"><h2 id="history-title">History</h2><span class="dashboard-loading" id="history-count"></span></div>
       <div id="history-list" class="history-list"><div class="dashboard-empty">Loading history…</div></div>
     </section>
   </div>
