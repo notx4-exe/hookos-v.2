@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>HookOS — Dashboard</title>
+<meta name="description" content="Your HookOS account dashboard and generation history.">
+<link rel="icon" href="assets/favicon.ico" sizes="any">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="fixes.css">
+<style>
+.dashboard-shell{padding:72px 0 96px}.dashboard-head{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:32px}.dashboard-head h1{margin:0 0 8px}.dashboard-head p{margin:0;color:var(--text-secondary)}.dashboard-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(280px,.8fr);gap:20px}.dashboard-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:24px}.dashboard-card h2{margin:0 0 18px}.usage-number{font-size:44px;font-weight:800;letter-spacing:-.05em}.usage-copy{color:var(--text-secondary);margin-top:4px}.usage-bar{height:8px;background:var(--border);border-radius:999px;overflow:hidden;margin-top:18px}.usage-bar span{display:block;height:100%;width:0;background:var(--text-primary);border-radius:inherit}.history-list{display:grid;gap:12px}.history-item{border:1px solid var(--border);border-radius:16px;padding:16px}.history-item-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}.history-item h3{margin:0 0 6px;font-size:16px}.history-meta{font-size:13px;color:var(--text-secondary)}.history-preview{margin-top:10px;color:var(--text-secondary);line-height:1.5}.dashboard-empty{padding:32px 0;color:var(--text-secondary);text-align:center}.danger-link{color:#b42318}.account-email{font-weight:600;word-break:break-word}.account-meta{color:var(--text-secondary);font-size:14px;margin-top:6px}.dashboard-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}.mini-btn{border:1px solid var(--border);background:transparent;border-radius:10px;padding:9px 12px;cursor:pointer}.mini-btn:hover{background:var(--bg)}
+@media(max-width:760px){.dashboard-shell{padding:44px 0 72px}.dashboard-head{display:block}.dashboard-grid{grid-template-columns:1fr}.dashboard-card{padding:20px}}
+</style>
+</head>
+<body>
+<a href="#main" class="skip-link">Skip to content</a>
+<div id="navbar-root" class="navbar-placeholder"></div>
+<main id="main" class="dashboard-shell">
+  <div class="container">
+    <div class="dashboard-head">
+      <div><h1>Your Dashboard</h1><p>Manage your account and see what you have created.</p></div>
+      <a class="btn btn-primary" href="index.html#generator">Create Blueprint</a>
+    </div>
+
+    <div class="dashboard-grid">
+      <section class="dashboard-card" aria-labelledby="usage-title">
+        <h2 id="usage-title">Today</h2>
+        <div class="usage-number" id="usage-number">— / 3</div>
+        <div class="usage-copy" id="usage-copy">Loading your daily generation limit…</div>
+        <div class="usage-bar" aria-hidden="true"><span id="usage-bar"></span></div>
+      </section>
+
+      <section class="dashboard-card" aria-labelledby="account-title">
+        <h2 id="account-title">Account</h2>
+        <div class="account-email" id="account-email">Loading…</div>
+        <div class="account-meta" id="account-name"></div>
+        <div class="account-meta" id="account-plan"></div>
+        <div class="dashboard-actions">
+          <a class="btn btn-secondary" href="#history">History</a>
+          <button class="mini-btn danger-link" type="button" data-action="delete-account">Delete Account</button>
+        </div>
+      </section>
+    </div>
+
+    <section class="dashboard-card" id="history" style="margin-top:20px" aria-labelledby="history-title">
+      <h2 id="history-title">History</h2>
+      <div id="history-list" class="history-list"><div class="dashboard-empty">Loading history…</div></div>
+    </section>
+  </div>
+</main>
+<div id="footer-root"></div>
+<script src="config.js"></script><script src="partials.js"></script><script src="auth.js"></script><script src="account-ui.js"></script><script src="dashboard.js"></script>
+</body>
+</html>
