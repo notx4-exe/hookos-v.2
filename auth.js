@@ -1,11 +1,6 @@
 // ==========================================================================
 // HOOKOS — auth UI
-//
-// Google OAuth returns a short-lived JWT in the URL fragment. The fragment
-// is consumed immediately, stored in sessionStorage, and then removed from
-// the address bar. Authentication is confirmed with GET /me before the UI
-// is considered signed in.
-// ============================================================================
+// ==========================================================================
 
 const HookosAuth = (() => {
   let currentUser = null;
@@ -18,15 +13,28 @@ const HookosAuth = (() => {
   function renderSignedIn(user) {
     document.querySelectorAll('[data-auth-state="signed-out"]').forEach((el) => el.classList.remove('is-active'));
     document.querySelectorAll('[data-auth-state="signed-in"]').forEach((el) => el.classList.add('is-active'));
+
     const initial = (user.name || user.email || '?').trim().charAt(0).toUpperCase();
-    document.querySelectorAll('[data-user-initial]').forEach((el) => { el.textContent = initial; });
-    document.querySelectorAll('[data-user-name]').forEach((el) => { el.textContent = user.name || user.email || 'Account'; });
+    document.querySelectorAll('[data-user-initial]').forEach((el) => {
+      el.textContent = initial;
+      el.hidden = Boolean(user.avatarUrl);
+    });
+
+    document.querySelectorAll('[data-user-name]').forEach((el) => {
+      el.textContent = user.name || user.email || 'Account';
+    });
+
     document.querySelectorAll('[data-user-avatar]').forEach((el) => {
       if (user.avatarUrl) {
         el.src = user.avatarUrl;
         el.hidden = false;
-        el.previousElementSibling?.setAttribute('hidden', 'true');
+      } else {
+        el.hidden = true;
       }
+    });
+
+    document.querySelectorAll('[data-user-email]').forEach((el) => {
+      el.textContent = user.email || '';
     });
   }
 
@@ -56,13 +64,16 @@ const HookosAuth = (() => {
       currentUser = res?.data || null;
       if (currentUser) {
         renderSignedIn(currentUser);
+        document.dispatchEvent(new CustomEvent('hookos:authenticated', { detail: currentUser }));
         return true;
       }
       renderSignedOut();
+      document.dispatchEvent(new CustomEvent('hookos:signed-out'));
       return false;
     } catch (err) {
       currentUser = null;
       renderSignedOut();
+      document.dispatchEvent(new CustomEvent('hookos:signed-out'));
       return false;
     }
   }
@@ -72,28 +83,54 @@ const HookosAuth = (() => {
     const error = checkOAuthRedirectParams();
     const authenticated = await refresh();
 
-    // Only remove OAuth parameters after the authentication check has run.
-    // This prevents a failed callback from becoming an invisible login loop.
     if (receivedOAuthToken || error) cleanOAuthUrl();
 
-    if (receivedOAuthToken && !authenticated) {
-      console.warn('[HookosAuth] Google returned a token, but /me rejected it.');
+    // First successful Google login opens the account dashboard.
+    if (receivedOAuthToken && authenticated && !window.location.pathname.endsWith('/dashboard.html')) {
+      window.location.replace('dashboard.html');
+      return;
     }
   }
 
   async function logout() {
     try { await HookosAPI.logout(); } catch (_) {}
     currentUser = null;
+    HookosAPI.clearAccessToken();
     renderSignedOut();
     window.location.href = 'index.html';
   }
 
   document.addEventListener('click', (e) => {
     if (e.target.closest('[data-action="logout"]')) logout();
+
     if (e.target.closest('[data-action="google-login"]')) {
       window.location.href = HookosAPI.googleLoginUrl();
     }
+
+    if (e.target.closest('[data-action="delete-account"]')) {
+      deleteAccount();
+    }
   });
+
+  async function deleteAccount() {
+    const confirmed = window.confirm(
+      'Delete your HookOS account and all saved generation history? This cannot be undone.'
+    );
+    if (!confirmed) return;
+
+    const button = document.querySelector('[data-action="delete-account"]');
+    if (button) button.disabled = true;
+
+    try {
+      await HookosAPI.deleteAccount();
+      HookosAPI.clearAccessToken();
+      currentUser = null;
+      window.location.replace('index.html');
+    } catch (err) {
+      if (button) button.disabled = false;
+      window.alert(err.message || 'Could not delete your account. Please try again.');
+    }
+  }
 
   function checkOAuthRedirectParams() {
     const params = new URLSearchParams(window.location.search);
@@ -105,5 +142,5 @@ const HookosAuth = (() => {
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
 
-  return { refresh, currentUser: () => currentUser };
+  return { refresh, currentUser: () => currentUser, logout, deleteAccount };
 })();
