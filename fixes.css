@@ -1,5 +1,8 @@
 /* HOOKOS visual fixes */
 
+[hidden]{display:none!important}
+.avatar-img[hidden],.avatar[hidden]{display:none!important}
+
 .logo-wordmark { display:inline-flex; align-items:center; font-size:22px; font-weight:800; letter-spacing:-.055em; line-height:1; color:var(--text-primary); white-space:nowrap; }
 .footer-wordmark { font-size:20px; margin-bottom:10px; }
 
@@ -8,7 +11,7 @@
 .loading-orb { width:54px; height:54px; margin:0 auto 18px; border-radius:50%; background:linear-gradient(135deg,#f0f0f0,#d9d9d9,#f7f7f7); animation:hookos-orb 1.8s ease-in-out infinite; }
 .loading-status { min-height:25px; font-size:clamp(16px,2vw,18px); font-weight:700; letter-spacing:-.02em; line-height:1.3; overflow-wrap:anywhere; }
 .loading-steps { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; width:100%; margin:26px 0 22px; text-align:left; }
-.loading-steps .loading-step { display:flex; align-items:center; gap:8px; width:auto; height:auto; min-width:0; min-height:44px; padding:10px 11px; border:1px solid var(--border); border-radius:14px; background:var(--surface); color:#999; font-size:11px; line-height:1.3; overflow-wrap:anywhere; transition:color .25s ease,border-color .25s ease,background-color .25s ease,transform .25s ease; }
+.loading-steps .loading-step { display:flex; align-items:center; gap:8px; width:auto; height:auto; min-width:0; min-height:44px; padding:10px 11px; border:1px solid var(--border); border-radius:14px; background:var(--surface); color:#999; font-size:11px; line-height:1.3; overflow-wrap:anywhere; transition:color .25s var(--ease),border-color .25s var(--ease),background-color .25s var(--ease),transform .25s var(--ease); }
 .loading-step span:last-child { min-width:0; overflow-wrap:anywhere; }
 .loading-step.is-active { color:var(--text-primary); font-weight:700; border-color:var(--text-primary); background:var(--bg); transform:translateY(-1px); }
 .loading-step.is-done { color:var(--text-primary); font-weight:700; border-color:var(--text-primary); background:var(--bg); }
@@ -52,7 +55,6 @@
 #early-access-form input:focus,#early-access-form textarea:focus { border-color:#999; box-shadow:0 0 0 3px rgba(0,0,0,.05); }
 #early-access-form input::placeholder,#early-access-form textarea::placeholder { color:#999; }
 .early-access-note { margin:2px 2px 4px; color:var(--text-secondary); font-size:12px; line-height:1.5; text-align:center; }
-
 .final-cta { text-align:center; }
 .final-cta h2 { margin-bottom:24px; }
 
