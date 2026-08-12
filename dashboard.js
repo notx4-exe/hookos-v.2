@@ -38,13 +38,12 @@
       const response = await HookosAPI.getUsage();
       const usage = response?.data || { used: 0, limit: 3, remaining: 3 };
       const limit = Number(usage.limit || 3);
-      const used = Number(usage.used || 0);
-      const remaining = Number(usage.remaining ?? Math.max(0, limit - used));
-      document.getElementById('usage-number').textContent = `${used} / ${limit}`;
-      document.getElementById('usage-copy').textContent = remaining
-        ? `${remaining} generation${remaining === 1 ? '' : 's'} remaining today.`
-        : 'Daily limit reached. Come back tomorrow.';
-      document.getElementById('usage-bar').style.width = `${Math.min(100, (used / limit) * 100)}%`;
+      const remaining = Math.max(0, Number(usage.remaining ?? limit - Number(usage.used || 0)));
+      document.getElementById('usage-number').textContent = remaining;
+      document.getElementById('usage-copy').textContent = remaining === 0
+        ? 'Daily limit reached. Come back tomorrow.'
+        : `${remaining} generation${remaining === 1 ? '' : 's'} remaining today.`;
+      document.getElementById('usage-bar').style.width = `${Math.min(100, (remaining / limit) * 100)}%`;
     } catch (err) {
       document.getElementById('usage-copy').textContent = err.message || 'Could not load usage.';
     }
@@ -53,7 +52,14 @@
   async function loadHistory() {
     try {
       const response = await HookosAPI.getHistory();
-      const items = Array.isArray(response?.data?.items) ? response.data.items : [];
+      const items = Array.isArray(response?.data?.items)
+        ? response.data.items
+        : Array.isArray(response?.data)
+          ? response.data
+          : [];
+      const count = document.getElementById('history-count');
+      if (count) count.textContent = items.length ? `${items.length} saved` : '';
+
       if (!items.length) {
         historyList.innerHTML = '<div class="dashboard-empty">No blueprints yet. Create your first one.</div>';
         return;
