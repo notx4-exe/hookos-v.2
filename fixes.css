@@ -64,3 +64,14 @@
 @media (max-width:560px){ .grid-4,.grid-2{grid-template-columns:1fr}.card,.output-card{padding:20px;border-radius:19px}.output-line{flex-direction:column;gap:4px}.output-line strong{flex-basis:auto} }
 @media (max-width:360px){ .loading-panel{padding-inline:12px}.loading-steps{gap:6px}.loading-steps .loading-step{padding-inline:6px;font-size:10px} }
 @media (prefers-reduced-motion:reduce){ .loading-orb,.loading-bar{animation:none!important} }
+
+/* Compact signed-in account control — avoid the oversized pill on mobile. */
+.profile-menu{width:auto!important;max-width:240px;}
+.profile-trigger{width:auto!important;max-width:240px;min-width:0;min-height:46px;height:46px;padding:5px 12px 5px 6px;border-radius:14px;}
+.profile-trigger [data-user-name]{min-width:0;max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+@media (max-width:860px){
+  .nav-right .profile-menu{width:fit-content!important;max-width:240px;align-self:flex-start;}
+  .nav-right .profile-trigger{width:auto!important;max-width:240px;min-height:50px;height:50px;padding:6px 14px 6px 7px;border-radius:14px;}
+  .nav-right .profile-trigger [data-user-name]{max-width:165px;}
+}
