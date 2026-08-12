@@ -7,6 +7,18 @@
   let turnstileWidgetId = null;
   let turnstileToken = '';
 
+  function installStyles() {
+    if (document.getElementById('hookos-quota-styles')) return;
+    const style = document.createElement('style');
+    style.id = 'hookos-quota-styles';
+    style.textContent = `
+      .generation-quota{margin:8px 0 0;color:var(--text-secondary);font-size:13px;line-height:1.45}
+      .generation-quota.is-limit{color:#b42318}
+      #turnstile-container{display:flex;justify-content:center}
+    `;
+    document.head.appendChild(style);
+  }
+
   function ensureQuotaElement() {
     const textarea = document.getElementById('idea-input');
     if (!textarea || document.getElementById('generation-quota')) return;
@@ -24,7 +36,6 @@
     if (!form || !HOOKOS_CONFIG.TURNSTILE_SITE_KEY || document.getElementById('turnstile-container')) return;
     const container = document.createElement('div');
     container.id = 'turnstile-container';
-    container.style.margin = '12px 0';
     form.insertBefore(container, form.querySelector('#generate-btn'));
   }
 
@@ -111,6 +122,7 @@
   };
 
   function init() {
+    installStyles();
     ensureQuotaElement();
     loadTurnstile();
     refreshQuota();
