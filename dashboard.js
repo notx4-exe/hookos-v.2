@@ -18,7 +18,6 @@
       window.location.replace('index.html');
       return;
     }
-
     await Promise.all([loadProfile(), loadUsage(), loadHistory()]);
   }
 
@@ -54,7 +53,7 @@
   async function loadHistory() {
     try {
       const response = await HookosAPI.getHistory();
-      const items = Array.isArray(response?.data) ? response.data : [];
+      const items = Array.isArray(response?.data?.items) ? response.data.items : [];
       if (!items.length) {
         historyList.innerHTML = '<div class="dashboard-empty">No blueprints yet. Create your first one.</div>';
         return;
@@ -65,11 +64,11 @@
           <div class="history-item-head">
             <div>
               <h3>${escapeHtml(item.topic || 'Untitled idea')}</h3>
-              <div class="history-meta">${escapeHtml(item.framework || 'Framework')} · ${escapeHtml(item.createdAt ? new Date(item.createdAt).toLocaleString() : '')}</div>
+              <div class="history-meta">${escapeHtml(item.framework || 'Framework')} · ${escapeHtml(item.savedAt ? new Date(item.savedAt).toLocaleString() : '')}</div>
             </div>
             <button type="button" class="mini-btn" data-delete-history="${escapeHtml(item.id)}">Delete</button>
           </div>
-          <div class="history-preview">${escapeHtml(item.hook || item.title || 'Saved blueprint')}</div>
+          <div class="history-preview">${escapeHtml(item.hook || 'Saved blueprint')}</div>
         </article>
       `).join('');
     } catch (err) {
