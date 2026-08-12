@@ -81,6 +81,8 @@ const HookosAPI = (() => {
     getProfile() { return request('/profile', { method: 'GET' }); },
     joinEarlyAccess(payload) { return request('/early-access', { method: 'POST', body: JSON.stringify(payload) }); },
     adminEarlyAccess() { return request('/admin/early-access', { method: 'GET' }); },
+    adminOverview() { return request('/admin/overview', { method: 'GET' }); },
+    adminUsers() { return request('/admin/users', { method: 'GET' }); },
     googleLoginUrl() { return `${HOOKOS_CONFIG.API_BASE_URL}/auth/google`; },
     setAccessToken,
     clearAccessToken,
