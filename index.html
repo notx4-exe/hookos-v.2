@@ -3,9 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>HookOS — Turn Any Idea Into A Complete Reel Blueprint</title>
-<meta name="description" content="HookOS turns a simple idea into a complete reel blueprint in seconds — title, hook, script, scene plan and CTA, generated instantly.">
+<title>HookOS — Turn Ideas Into Reel Blueprints</title>
+<meta name="description" content="HookOS turns a content idea into a complete Reel blueprint: topic refinement, title, hook, script, scene plan and CTA.">
 <meta name="theme-color" content="#FFFFFF">
+<meta name="robots" content="index,follow">
+<meta property="og:title" content="HookOS — Turn Ideas Into Reel Blueprints">
+<meta property="og:description" content="Turn one content idea into a complete Reel blueprint in seconds.">
+<link rel="canonical" href="https://hookos-v-3.vercel.app/">
 <link rel="icon" href="assets/favicon.ico" sizes="any">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,7 +17,6 @@
 <link rel="stylesheet" href="fixes.css">
 </head>
 <body>
-
 <a href="#main" class="skip-link">Skip to content</a>
 <div id="navbar-root" class="navbar-placeholder"></div>
 
@@ -21,18 +24,19 @@
   <section class="hero" id="top">
     <div class="container">
       <div class="hero-copy">
-        <h1>Turn Any Idea Into A Complete Reel Blueprint.</h1>
-        <p>Generate a title, hook, script, scene plan and CTA in seconds.</p>
+        <div class="eyebrow">IDEA → HOOK → REEL</div>
+        <h1>Make the first seconds matter.</h1>
+        <p>Turn one idea into a clear Reel blueprint — title, hook, script, scene plan and CTA.</p>
         <div class="hero-actions">
           <a href="#generator" class="btn btn-primary btn-lg">Get Started</a>
           <a href="#example" class="btn btn-secondary btn-lg">See Example</a>
         </div>
       </div>
-      <div class="mockup" role="img" aria-label="Preview of a generated blueprint for the idea: why students can't focus">
+      <div class="mockup" role="img" aria-label="Preview of a generated HookOS Reel blueprint">
         <div class="mockup-window">
           <div class="mockup-bar"><span class="mockup-dot"></span><span class="mockup-dot"></span><span class="mockup-dot"></span></div>
           <div class="mockup-body">
-            <div class="mockup-label">Idea</div>
+            <div class="mockup-label">IDEA</div>
             <div class="mockup-input">Why students can't focus</div>
             <div class="mockup-outputs">
               <div class="mockup-chip"><span class="dot"></span>Title</div><div class="mockup-chip"><span class="dot"></span>Hook</div><div class="mockup-chip"><span class="dot"></span>Script</div><div class="mockup-chip"><span class="dot"></span>Scene Plan</div><div class="mockup-chip"><span class="dot"></span>CTA</div>
@@ -45,12 +49,16 @@
 
   <section id="generator" class="section-alt">
     <div class="container generator-shell">
-      <div class="section-title reveal"><h2>Create Your Reel Blueprint</h2><p>Enter your idea and choose a hook framework.</p></div>
+      <div class="section-title reveal"><div class="eyebrow">CREATE</div><h2>One idea in.<br>One blueprint out.</h2><p>Tell HookOS what you're creating. Pick a framework and let it build the structure.</p></div>
       <form id="blueprint-form" novalidate>
         <div class="field-label" id="idea-label">Your idea</div>
-        <textarea id="idea-input" placeholder="Describe your reel idea..." aria-labelledby="idea-label" required></textarea>
+        <div class="hookos-idea-wrap">
+          <textarea id="idea-input" placeholder="Tell me what you’re creating today..." aria-labelledby="idea-label" aria-describedby="generation-quota" required></textarea>
+        </div>
+        <div class="input-guidance" aria-live="polite"><span class="input-guidance-main">Try: “3 mistakes first-time apartment buyers make”</span><span id="char-count">0/500</span></div>
         <div class="field-label" style="margin-top:32px;" id="framework-label">Choose a framework</div>
         <div class="framework-grid" role="radiogroup" aria-labelledby="framework-label" id="framework-grid"></div>
+        <div id="turnstile-container" hidden></div>
         <button type="submit" class="btn btn-primary btn-lg btn-block" id="generate-btn"><span id="generate-btn-text">Generate Blueprint</span></button>
         <div class="form-hint" id="form-hint">&nbsp;</div>
         <div class="api-error" id="api-error" role="alert"></div>
@@ -76,28 +84,28 @@
     </div>
   </section>
 
-  <section id="how-it-works"><div class="container"><div class="section-title reveal"><h2>HookOS Simplifies Everything.</h2><p>One idea in, one complete blueprint out.</p></div><div class="process"><div class="process-step"><div class="num">1</div><span class="label">Idea</span></div><span class="process-arrow" aria-hidden="true">→</span><div class="process-step"><div class="num">2</div><span class="label">Choose Framework</span></div><span class="process-arrow" aria-hidden="true">→</span><div class="process-step"><div class="num">3</div><span class="label">Generate</span></div><span class="process-arrow" aria-hidden="true">→</span><div class="process-step"><div class="num">4</div><span class="label">Publish</span></div></div></div></section>
+  <section id="how-it-works"><div class="container"><div class="section-title reveal"><div class="eyebrow">HOW IT WORKS</div><h2>Less figuring out.<br>More creating.</h2><p>HookOS is designed to remove the blank-page step from your content workflow.</p></div><div class="process"><div class="process-step"><div class="num">1</div><span class="label">Bring your idea</span></div><span class="process-arrow" aria-hidden="true">→</span><div class="process-step"><div class="num">2</div><span class="label">Choose a framework</span></div><span class="process-arrow" aria-hidden="true">→</span><div class="process-step"><div class="num">3</div><span class="label">Generate</span></div><span class="process-arrow" aria-hidden="true">→</span><div class="process-step"><div class="num">4</div><span class="label">Create</span></div></div></div></section>
 
-  <section id="example" class="section-alt"><div class="container"><div class="section-title reveal"><h2>See It In Action.</h2><p>The same idea, shaped by two different frameworks.</p></div><div class="example-input reveal"><div class="mockup-label">Idea</div><div class="mockup-input">Why students can't focus</div></div><div class="grid-2">
+  <section id="example" class="section-alt"><div class="container"><div class="section-title reveal"><div class="eyebrow">EXAMPLE</div><h2>See the same idea<br>take a different shape.</h2><p>HookOS lets you start with the structure that fits your message.</p></div><div class="example-input reveal"><div class="mockup-label">IDEA</div><div class="mockup-input">Why students can't focus</div></div><div class="grid-2">
     <div class="output-card reveal"><h3>🧠 Curiosity Gap</h3><div class="output-line"><strong>Title</strong><span>The Focus Thief Nobody Talks About</span></div><div class="output-line"><strong>Hook</strong><span>Your brain isn't broken — it's being hijacked every 6 seconds.</span></div><div class="output-line"><strong>Script</strong><span>Open with the hijack claim, reveal the dopamine-loop mechanism, contrast focused vs. distracted brain states, deliver one counter-intuitive fix.</span></div><div class="output-line"><strong>Scene Plan</strong><span>Close-up on phone notifications → split screen brain scan visual → text overlay of the fix → direct-to-camera close.</span></div><div class="output-line"><strong>CTA</strong><span>Save this before your next study session.</span></div></div>
     <div class="output-card reveal"><h3>📖 Story</h3><div class="output-line"><strong>Title</strong><span>I Failed Twice Before I Found Out Why</span></div><div class="output-line"><strong>Hook</strong><span>I failed my finals twice before I found out why.</span></div><div class="output-line"><strong>Script</strong><span>Set the scene of the failed exam, walk through the moment of realization, introduce the turning point, land on the lesson learned.</span></div><div class="output-line"><strong>Scene Plan</strong><span>Sitting at a desk, defeated → flashback b-roll of late-night cramming → lightbulb moment shot → confident walk to class.</span></div><div class="output-line"><strong>CTA</strong><span>Follow for the full story series.</span></div></div>
   </div></div></section>
 
-  <section id="features"><div class="container"><div class="section-title reveal"><h2>Why HookOS.</h2><p>Built for the parts of content creation that actually eat your time.</p></div><div class="grid-4"><div class="card reveal"><div class="card-icon" aria-hidden="true">01</div><h3>Real Frameworks</h3><p>Eight proven hook frameworks, not one generic template.</p></div><div class="card reveal"><div class="card-icon" aria-hidden="true">02</div><h3>Complete Blueprints</h3><p>Title, hook, script, scene plan and CTA — every time, together.</p></div><div class="card reveal"><div class="card-icon" aria-hidden="true">03</div><h3>Built-In Metrics</h3><p>Virality, retention and confidence scored before you film.</p></div><div class="card reveal"><div class="card-icon" aria-hidden="true">04</div><h3>Live Progress</h3><p>See the generator work through each stage while your blueprint is being created.</p></div></div></div></section>
+  <section id="features"><div class="container"><div class="section-title reveal"><div class="eyebrow">WHY HOOKOS</div><h2>Simple on purpose.</h2><p>No maze of settings. Just the pieces you need to start creating.</p></div><div class="grid-4"><div class="card reveal"><div class="card-icon" aria-hidden="true">01</div><h3>Real Frameworks</h3><p>Eight proven hook frameworks, not one generic template.</p></div><div class="card reveal"><div class="card-icon" aria-hidden="true">02</div><h3>Complete Blueprints</h3><p>Title, hook, script, scene plan and CTA — together.</p></div><div class="card reveal"><div class="card-icon" aria-hidden="true">03</div><h3>Built-In Metrics</h3><p>Quick creative signals before you film.</p></div><div class="card reveal"><div class="card-icon" aria-hidden="true">04</div><h3>Live Progress</h3><p>See each generation stage as your blueprint is created.</p></div></div></div></section>
 
-  <section id="early-access" class="section-alt"><div class="container"><div class="section-title reveal"><h2>Get Early Access.</h2><p>Join the list to hear when HookOS is ready. Tell us what you'd want built next so we can prioritize the right features.</p></div><div class="early-access-shell reveal">
+  <section id="languages" class="section-alt"><div class="container"><div class="section-title reveal"><div class="eyebrow">LANGUAGES</div><h2>Available now.</h2><p>Start creating in the language that feels natural to you.</p></div><div class="language-grid"><div class="language-card reveal"><span class="language-check">✓</span><strong>English</strong><span>Latin</span></div><div class="language-card reveal"><span class="language-check">✓</span><strong>Hindi</strong><span>हिन्दी</span></div><div class="language-card reveal"><span class="language-check">✓</span><strong>Tamil</strong><span>தமிழ்</span></div></div><div class="coming-soon reveal"><span>COMING SOON</span><strong>Telugu · Marathi · Bengali · Kannada</strong></div></div></section>
+
+  <section id="early-access"><div class="container"><div class="section-title reveal"><div class="eyebrow">EARLY ACCESS</div><h2>Help us build what creators actually need.</h2><p>Join the list and tell us what should come next.</p></div><div class="early-access-shell reveal">
     <form id="early-access-form" novalidate>
-      <label class="sr-only" for="ea-email">Email address</label>
-      <input type="email" id="ea-email" placeholder="Your email address" required autocomplete="email">
-      <label class="sr-only" for="ea-feedback">Product feedback</label>
-      <textarea id="ea-feedback" placeholder="What should HookOS build next? (optional)"></textarea>
+      <label class="sr-only" for="ea-email">Email address</label><input type="email" id="ea-email" placeholder="Your email address" required autocomplete="email">
+      <label class="sr-only" for="ea-feedback">Product feedback</label><textarea id="ea-feedback" placeholder="What should HookOS build next? (optional)"></textarea>
       <p class="early-access-note">📩 Your email is only for early-access updates. Your feedback helps us decide what to build next.</p>
       <button type="submit" class="btn btn-primary btn-lg btn-block" id="ea-submit-btn"><span id="ea-submit-text">Join Early Access</span></button>
       <div class="form-hint" id="ea-hint">&nbsp;</div>
     </form>
   </div></div></section>
 
-  <section class="final-cta"><div class="container reveal"><h2>Ready To Create Better Reels?</h2><a href="#generator" class="btn btn-primary btn-lg">Generate My Reel</a></div></section>
+  <section class="final-cta"><div class="container reveal"><h2>Ready to make your next Reel stronger?</h2><a href="#generator" class="btn btn-primary btn-lg">Generate My Reel</a></div></section>
 </main>
 
 <div id="footer-root"></div>
