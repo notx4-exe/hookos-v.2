@@ -16,16 +16,19 @@
       .generation-quota.is-limit{color:#b42318}
       .generation-quota.is-ready{color:#444}
       #turnstile-container{display:flex;justify-content:center;margin:14px 0}
-      .hookos-idea-wrap{position:relative}
-      .hookos-idea-wrap #idea-input{transition:border-color .18s ease,box-shadow .18s ease}
-      .hookos-idea-wrap.is-auth-required #idea-input{border-color:#111;box-shadow:0 0 0 3px rgba(0,0,0,.06)}
-      .hookos-inline-auth{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:10px 0 0;padding:12px 14px;border:1px solid #e6e6e6;border-radius:14px;background:#fafafa;color:#333;font-size:13px;line-height:1.4}
+      .hookos-inline-auth{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:10px 0 0;padding:13px 14px;border:1px solid #e6e6e6;border-radius:16px;background:#fafafa;color:#333;font-size:13px;line-height:1.4}
       .hookos-inline-auth-copy{min-width:0}
-      .hookos-inline-auth-title{font-weight:750;color:#111;margin-bottom:2px}
+      .hookos-inline-auth-title{font-weight:800;color:#111;margin-bottom:2px}
       .hookos-inline-auth-text{color:#666}
-      .hookos-inline-auth button{flex:0 0 auto;border:1px solid #111;background:#111;color:#fff;border-radius:10px;padding:9px 13px;font:inherit;font-size:12px;font-weight:750;cursor:pointer;white-space:nowrap}
+      .hookos-inline-auth button{flex:0 0 auto;border:1px solid #111;background:#111;color:#fff;border-radius:12px;padding:10px 14px;font:inherit;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap}
       .hookos-inline-auth button:hover{opacity:.9}
       .hookos-inline-auth[hidden]{display:none}
+      .hookos-usage-wrap{margin:12px 0 0;padding:14px 16px;border:1px solid #e6e6e6;border-radius:18px;background:#fff}
+      .hookos-usage-head{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:9px}
+      .hookos-usage-title{font-size:11px;font-weight:900;letter-spacing:.13em;text-transform:uppercase;color:#777}
+      .hookos-usage-count{font-size:13px;font-weight:800;color:#111}
+      .hookos-usage-track{height:7px;border-radius:999px;background:#ededed;overflow:hidden}
+      .hookos-usage-fill{height:100%;width:0;border-radius:inherit;background:#111;transition:width .25s ease}
       @media(max-width:560px){
         .hookos-inline-auth{align-items:flex-start;flex-direction:column}
         .hookos-inline-auth button{width:100%}
@@ -37,7 +40,6 @@
   function ensureQuotaElement() {
     const textarea = document.getElementById('idea-input');
     if (!textarea || document.getElementById('generation-quota')) return;
-
     const el = document.createElement('p');
     el.id = 'generation-quota';
     el.className = 'generation-quota';
@@ -46,16 +48,25 @@
     textarea.insertAdjacentElement('afterend', el);
   }
 
+  function ensureUsageCard() {
+    const textarea = document.getElementById('idea-input');
+    if (!textarea || document.getElementById('hookos-usage-wrap')) return;
+    const wrap = document.createElement('div');
+    wrap.id = 'hookos-usage-wrap';
+    wrap.className = 'hookos-usage-wrap';
+    wrap.innerHTML = `
+      <div class="hookos-usage-head">
+        <span class="hookos-usage-title">Free daily generations</span>
+        <span class="hookos-usage-count" id="hookos-usage-count">3 left</span>
+      </div>
+      <div class="hookos-usage-track" aria-hidden="true"><div class="hookos-usage-fill" id="hookos-usage-fill"></div></div>
+    `;
+    textarea.closest('.hookos-idea-wrap')?.insertAdjacentElement('afterend', wrap);
+  }
+
   function ensureIdeaUX() {
     const textarea = document.getElementById('idea-input');
     if (!textarea || document.getElementById('hookos-inline-auth')) return;
-
-    textarea.placeholder = 'Tell me what you’re creating today...';
-
-    const wrapper = document.createElement('div');
-    wrapper.className = 'hookos-idea-wrap';
-    textarea.parentNode.insertBefore(wrapper, textarea);
-    wrapper.appendChild(textarea);
 
     const message = document.createElement('div');
     message.id = 'hookos-inline-auth';
@@ -68,8 +79,7 @@
       </div>
       <button type="button" data-action="google-login">Sign in with Google</button>
     `;
-    wrapper.insertAdjacentElement('afterend', message);
-
+    textarea.closest('.hookos-idea-wrap')?.insertAdjacentElement('afterend', message);
     textarea.addEventListener('input', hideAuthRequired);
   }
 
@@ -94,17 +104,15 @@
 
   function ensureTurnstileElement() {
     const form = document.getElementById('blueprint-form');
-    if (!form || !HOOKOS_CONFIG.TURNSTILE_SITE_KEY || document.getElementById('turnstile-container')) return;
-    const container = document.createElement('div');
-    container.id = 'turnstile-container';
-    form.insertBefore(container, form.querySelector('#generate-btn'));
+    const container = document.getElementById('turnstile-container');
+    if (!form || !HOOKOS_CONFIG.TURNSTILE_SITE_KEY || !container) return;
+    container.hidden = false;
   }
 
   function loadTurnstile() {
     if (!HOOKOS_CONFIG.TURNSTILE_SITE_KEY) return;
     ensureTurnstileElement();
     if (window.turnstile) return renderTurnstile();
-
     const existing = document.querySelector('script[data-hookos-turnstile]');
     if (existing) return;
     const script = document.createElement('script');
@@ -135,26 +143,35 @@
 
   function setQuota(usage) {
     ensureQuotaElement();
+    ensureUsageCard();
     const el = document.getElementById('generation-quota');
-    if (!el) return;
+    const countEl = document.getElementById('hookos-usage-count');
+    const fillEl = document.getElementById('hookos-usage-fill');
+    if (!el || !countEl || !fillEl) return;
 
     if (!usage) {
       el.textContent = `Sign in with Google to generate · ${LIMIT} free generations per day.`;
       el.classList.remove('is-limit', 'is-ready');
+      countEl.textContent = `${LIMIT} left`;
+      fillEl.style.width = '0%';
       return;
     }
 
-    const remaining = Math.max(0, Number(usage.remaining ?? LIMIT));
+    const remaining = Math.max(0, Math.min(LIMIT, Number(usage.remaining ?? LIMIT)));
+    const used = Math.max(0, LIMIT - remaining);
     el.textContent = remaining === 0
       ? 'Daily limit reached · 3/3 generations used. Come back tomorrow.'
       : `${remaining} of ${LIMIT} free generations left today.`;
     el.classList.toggle('is-limit', remaining === 0);
     el.classList.toggle('is-ready', remaining > 0);
+    countEl.textContent = remaining === 0 ? '0 left' : `${remaining} left`;
+    fillEl.style.width = `${(used / LIMIT) * 100}%`;
     hideAuthRequired();
   }
 
   async function refreshQuota() {
     ensureQuotaElement();
+    ensureUsageCard();
     if (!HookosAPI.getAccessToken()) {
       setQuota(null);
       return;
@@ -172,7 +189,6 @@
     if (HOOKOS_CONFIG.TURNSTILE_SITE_KEY && !turnstileToken) {
       throw new Error('Please complete the human verification before generating.');
     }
-
     const requestPayload = turnstileToken ? { ...payload, turnstileToken } : payload;
     try {
       const response = await originalGenerate(requestPayload);
@@ -188,11 +204,10 @@
     installStyles();
     ensureQuotaElement();
     ensureIdeaUX();
+    ensureUsageCard();
     loadTurnstile();
     refreshQuota();
 
-    // Run before the main generator handler so signed-out users get an inline
-    // explanation instead of a generic API error.
     const form = document.getElementById('blueprint-form');
     if (form) {
       form.addEventListener('submit', (event) => {
@@ -214,7 +229,10 @@
       setQuota(null);
       hideAuthRequired();
     });
+    document.addEventListener('hookos:auth-required', showAuthRequired);
   }
+
+  window.HookosQuotaUI = { showAuthRequired, refreshQuota };
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
